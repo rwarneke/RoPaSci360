@@ -1,38 +1,119 @@
 .App {
-  text-align: center;
+	text-align: center;
 }
 
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+	height: 40vmin;
+	pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+	.App-logo {
+		animation: App-logo-spin infinite 20s linear;
+	}
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+	background-color: #282c34;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-size: calc(10px + 2vmin);
+	color: white;
 }
 
 .App-link {
-  color: #61dafb;
+	color: #61dafb;
 }
 
 @keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/***********************************/
+
+#tictactoeboard {
+	/* border: 1px black solid; */
+	font-size: 5rem;
+	text-align: center;
+	margin: 1rem auto;
+}
+.square {
+	width: 10rem;
+	height: 10rem;
+}
+.vert {
+	border-left: 2px solid black;
+	border-right: 2px solid black;
+}
+.hori {
+	border-top: 2px solid black;
+	border-bottom: 2px solid black;
+}
+
+/***********************************/
+
+#messages {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+#messages > li {
+	padding: 0.5rem 1rem;
+}
+
+#messages > li:nth-child(odd) {
+	background: #efefef;
+}
+
+#message-form {
+	background: rgba(0, 0, 0, 0.15);
+	padding: 0.25rem;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	height: 3rem;
+	box-sizing: border-box;
+	backdrop-filter: blur(10px);
+}
+
+#username-form {
+	text-align: center;
+	background: rgba(0, 0, 0, 0.15);
+	padding: 0.5rem;
+	height: 3rem;
+	box-sizing: border-box;
+	margin-bottom: 2rem;
+}
+
+#input,
+#username {
+	border: none;
+	padding: 0 1rem;
+	flex-grow: 1;
+	border-radius: 2rem;
+	margin: 0.25rem;
+}
+#input:focus {
+	outline: none;
+}
+#message-form button,
+#username-form button {
+	background: #333;
+	border: none;
+	padding: 0 1rem;
+	margin: 0.25rem;
+	border-radius: 3px;
+	outline: none;
+	color: #fff;
 }
