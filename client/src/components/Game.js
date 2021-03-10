@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Container, Button, Form } from "react-bootstrap";
 
 import socketIOClient from "socket.io-client";
-const ENDPOINT = "https://awfultictactoe.herokuapp.com/";
+const ENDPOINT = "http://localhost:5000/";
 
 class Game extends Component {
 	constructor(props) {
