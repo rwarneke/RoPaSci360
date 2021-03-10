@@ -51,6 +51,8 @@ class Game extends Component {
 				});
 				break;
 			}
+			default:
+				break;
 		}
 	};
 
