@@ -66,22 +66,29 @@ class Game extends Component {
 	};
 
 	onClickHex = (hex) => () => {
+		if (this.state.fromHex && this.state.toHex) {
+			// third click
+			this.setState({
+				fromHex: null,
+				toHex: null,
+			});
+		}
 		if ("RPSrps".includes(hex)) {
 			// this is a throwing pseudo-hex
-			console.log("clicked throwing hex");
-			this.setState({
-				fromHex: hex,
-				toHex: null,
-				thrownTokenType: hex,
-			});
-		} else {
-			if (this.state.fromHex && this.state.toHex) {
-				// third click
+			if (this.state.fromHex === hex) {
 				this.setState({
 					fromHex: null,
-					toHex: null,
 				});
-			} else if (this.state.fromHex) {
+			} else {
+				console.log("clicked throwing hex");
+				this.setState({
+					fromHex: hex,
+					toHex: null,
+					thrownTokenType: hex,
+				});
+			}
+		} else {
+			if (this.state.fromHex) {
 				// second click.
 				if (hex.toString() === this.state.fromHex.toString()) {
 					// same hex as first click. cancel.
@@ -220,6 +227,16 @@ class Game extends Component {
 		let throwTokens =
 			this.state.playingAs === UPPER ? ["R", "P", "S"] : ["r", "p", "s"];
 
+		var winnerMessage = "";
+		if (this.state.game && this.state.game.gameOver) {
+			const winner = this.state.game.winner;
+			if (winner === "Draw") {
+				winnerMessage = "Game over. It's a draw!";
+			} else {
+				winnerMessage = `Game over. ${winner} wins!`;
+			}
+		}
+
 		return (
 			<Container style={{ marginTop: "1rem" }}>
 				<div className="center">
@@ -260,6 +277,9 @@ class Game extends Component {
 						})}
 					</ul>
 				</div>
+				<div id="winner-banner" className="center">
+					{winnerMessage}
+				</div>
 				<hr />
 				<div>
 					<div>
@@ -297,7 +317,6 @@ class Game extends Component {
 					</div>
 					<br />
 				</div>
-				<div></div>
 			</Container>
 		);
 	}

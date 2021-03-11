@@ -123,6 +123,8 @@ class Game {
 	}
 
 	legalMove(move) {
+		if (this.gameOver) return false;
+
 		const { player, throwing, thrownTokenType, fromHex, toHex } = move;
 
 		// VALIDATE PARAMETERS
@@ -195,7 +197,6 @@ class Game {
 				if these conditions are met, the move is legal.
 				*/
 				const d1Hexes = Game.hexesOfDistanceOne(fromHex);
-				console.log(d1Hexes);
 				for (let hex of d1Hexes) {
 					if (
 						Game.distanceBetween(hex, toHex) === 1 &&
@@ -374,7 +375,6 @@ class Game {
 		// move the tokens
 		var toHexes = [];
 		for (let move of [this.nextMoves.Lower, this.nextMoves.Upper]) {
-			console.log(move);
 			// the move is assumed to be legal
 			const {
 				player,
@@ -430,14 +430,14 @@ class Game {
 			this.nCaptured.Upper === Game.MAX_N_THROWS &&
 			this.nCaptured.Lower === Game.MAX_N_THROWS
 		) {
-			self.gameOver = true;
-			self.winner = DRAW;
+			this.gameOver = true;
+			this.winner = DRAW;
 			return;
 		}
 		for (let player of [UPPER, LOWER]) {
 			if (this.nCaptured[player] === Game.MAX_N_THROWS) {
-				self.gameOver = true;
-				self.winner = player;
+				this.gameOver = true;
+				this.winner = player;
 				return;
 			}
 		}
@@ -448,8 +448,8 @@ class Game {
 		have an invincible token: Declare a draw.
 		*/
 		if (this.invincible(UPPER) && this.invincible(LOWER)) {
-			self.gameOver = true;
-			self.winner = DRAW;
+			this.gameOver = true;
+			this.winner = DRAW;
 			return;
 		}
 
@@ -463,8 +463,8 @@ class Game {
 				// does the other player have only one token left?
 				if (this.nCaptured[player] === Game.MAX_N_THROWS - 1) {
 					// yes!
-					self.gameOver = true;
-					self.winner = player;
+					this.gameOver = true;
+					this.winner = player;
 					return;
 				}
 			}
@@ -482,8 +482,8 @@ class Game {
 		declared: declare a draw.
 		*/
 		if (this.nMoves >= Game.MAX_N_MOVES) {
-			self.gameOver = true;
-			self.winner = DRAW;
+			this.gameOver = true;
+			this.winner = DRAW;
 			return;
 		}
 	}

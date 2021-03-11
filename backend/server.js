@@ -56,12 +56,14 @@ io.on("connection", (socket) => {
 	socket.on("move", (move) => {
 		game.submitMove(move);
 		if (game.justExecutedMoves) {
+			console.log("emitting game...");
 			io.emit("game", game);
 		}
 	});
 });
 
 if (process.env.NODE_ENV === "production") {
+	console.log("production");
 	app.use(express.static(path.join(__dirname, "../client/build")));
 
 	app.get("*", (req, res) => {
