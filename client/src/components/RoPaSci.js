@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import { Container, ButtonGroup, ToggleButton, Button } from "react-bootstrap";
 
 import socketIOClient from "socket.io-client";
-// const ENDPOINT = "/";
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "/";
+// const ENDPOINT = "http://localhost:5000";
 
 const TOKEN_IMG_PATH = {
 	r: "/images/token-r-lower.png",
