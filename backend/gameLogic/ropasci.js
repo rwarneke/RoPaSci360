@@ -325,7 +325,7 @@ class Game {
 	}
 
 	static validHex(hex) {
-		if (!hex.length || hex.length !== 2) return false;
+		if (!hex || !hex.length || hex.length !== 2) return false;
 		const [r, q] = hex;
 		if (!Number.isInteger(r) || !Number.isInteger(q)) return false;
 		if (r < -4 || r > 4) return false;
