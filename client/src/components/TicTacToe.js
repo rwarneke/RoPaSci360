@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Container, Button, Form } from "react-bootstrap";
 
 import socketIOClient from "socket.io-client";
-const ENDPOINT = "/";
+const ENDPOINT = "http://localhost:5000";
 
 class Game extends Component {
 	constructor(props) {
@@ -11,6 +11,8 @@ class Game extends Component {
 		// this.state = {
 		// 	game: new TicTacToeGame(),
 		// };
+
+		console.log("constructing...");
 
 		const socket = socketIOClient(ENDPOINT);
 		socket.on("connect", () => {

@@ -1,4 +1,4 @@
-.App {
+/* .App {
 	text-align: center;
 }
 
@@ -35,6 +35,17 @@
 	to {
 		transform: rotate(360deg);
 	}
+} */
+
+/***********************************/
+
+.btn,
+.btn:hover,
+.btn:active,
+.btn:active:focus,
+.btn:visited,
+.btn:focus {
+	box-shadow: none !important;
 }
 
 /***********************************/
@@ -116,4 +127,115 @@
 	border-radius: 3px;
 	outline: none;
 	color: #fff;
+}
+
+/***********************************/
+
+#hexGrid,
+#throwHexGrid {
+	/* border: 0.2rem black solid; */
+	display: grid;
+	grid-gap: 0.2rem;
+	grid-template-columns: repeat(18, 1fr);
+	width: 50rem;
+	max-width: 100%;
+	margin: 2rem auto;
+	list-style-type: none;
+	overflow: hidden;
+	padding: 0rem;
+	padding-bottom: 1.6rem;
+}
+
+.hex {
+	grid-column-end: span 2;
+	position: relative;
+	visibility: hidden;
+	outline: 1px solid transparent; /* fix for jagged edges */
+}
+
+.hex::after {
+	content: "";
+	display: block;
+	/* =  100 / tan(60) * 1.5 */
+	padding-bottom: 86.602%;
+}
+
+.hexIn {
+	position: absolute;
+	width: 100%;
+	padding-bottom: 115.47%; /* =  width / sin(60) */
+	overflow: hidden;
+	visibility: hidden;
+	outline: 1px solid transparent; /* fix for jagged edges in FF on hover transition */
+	-webkit-transform: rotate3d(0, 0, 1, -60deg) skewY(30deg);
+	-ms-transform: rotate3d(0, 0, 1, -60deg) skewY(30deg);
+	transform: rotate3d(0, 0, 1, -60deg) skewY(30deg);
+}
+.hexIn * {
+	position: absolute;
+	visibility: visible;
+	outline: 1px solid transparent; /* fix for jagged edges in FF on hover transition */
+}
+
+.hexContentOuter {
+	display: block;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	color: #fff;
+	overflow: hidden;
+	-webkit-transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
+	-ms-transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
+	transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
+}
+
+.hexContentInner {
+	background-color: lightgrey;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	box-sizing: border-box;
+	/* font-weight: 300; */
+	-webkit-transform: translate3d(0, 0, 0);
+	-ms-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+}
+
+.center {
+	text-align: center;
+}
+
+#throwHexGrid > .hex:nth-child(1) {
+	grid-column-start: 7;
+}
+
+.hex:nth-child(1) {
+	grid-column-start: 5;
+}
+.hex:nth-child(6) {
+	grid-column-start: 4;
+}
+.hex:nth-child(12) {
+	grid-column-start: 3;
+}
+.hex:nth-child(19) {
+	grid-column-start: 2;
+}
+.hex:nth-child(27) {
+	grid-column-start: 1;
+}
+.hex:nth-child(36) {
+	grid-column-start: 2;
+}
+.hex:nth-child(44) {
+	grid-column-start: 3;
+}
+.hex:nth-child(51) {
+	grid-column-start: 4;
+}
+.hex:nth-child(57) {
+	grid-column-start: 5;
 }

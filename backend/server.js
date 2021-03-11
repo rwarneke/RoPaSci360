@@ -8,75 +8,56 @@ const io = require("socket.io")(http, {
 	},
 });
 
+// import { RoPaSciGame } from "./gameLogic";
+const RoPaSciGame = require("./gameLogic/ropasci");
+
 // const cors = require("cors");
 // app.use(cors());
 
-class TicTacToeGame {
-	static winningLines = [
-		[1, 2, 3],
-		[4, 5, 6],
-		[7, 8, 9],
-		[1, 5, 9],
-		[7, 5, 3],
-		[1, 4, 7],
-		[2, 5, 8],
-		[3, 6, 9],
-	];
+var game = new RoPaSciGame();
 
-	constructor() {
-		this.board = {};
-		for (var i = 1; i <= 9; i++) {
-			this.board[i] = "";
-		}
-		this.playerToMove = "X";
-	}
+// game.submitMove({
+// 	player: "Upper",
+// 	throwing: true,
+// 	thrownTokenType: "S",
+// 	toHex: [4, -1],
+// });
 
-	isOver() {
-		for (var i in TicTacToeGame.winningLines) {
-			var line = TicTacToeGame.winningLines[i];
-			var p1 = this.board[line[0]];
-			var p2 = this.board[line[1]];
-			var p3 = this.board[line[2]];
-			if (p1 !== "" && p1 === p2 && p1 === p3) return true;
-		}
-		return false;
-	}
+// game.submitMove({
+// 	player: "Lower",
+// 	throwing: true,
+// 	thrownTokenType: "r",
+// 	toHex: [-4, 0],
+// });
 
-	static otherPlayer(player) {
-		return player === "X" ? "O" : "X";
-	}
+// game.submitMove({
+// 	player: "Upper",
+// 	throwing: true,
+// 	thrownTokenType: "S",
+// 	toHex: [4, 0],
+// });
 
-	makeMove(squareNum) {
-		if (this.isOver()) {
-			return false;
-		}
-		if (this.board[squareNum] !== "") {
-			// square already occupied
-			return false;
-		}
-		this.board[squareNum] = this.playerToMove;
-		this.playerToMove = TicTacToeGame.otherPlayer(this.playerToMove);
-		return true;
-	}
-}
-
-var game = new TicTacToeGame();
+// game.submitMove({
+// 	player: "Lower",
+// 	throwing: true,
+// 	thrownTokenType: "s",
+// 	toHex: [-4, 1],
+// });
 
 io.on("connection", (socket) => {
 	console.log("a user connected");
 	socket.emit("game", game);
 
-	socket.on("move", (data) => {
-		if (data.playingAs === game.playerToMove) {
-			const square = data.square;
-			game.makeMove(square);
-			io.emit("game", game);
-		}
+	socket.on("reset game", () => {
+		game = new RoPaSciGame();
+		io.emit("game", game);
 	});
 
-	socket.on("reset game", () => {
-		game = new TicTacToeGame();
-		io.emit("game", game);
+	socket.on("move", (move) => {
+		game.submitMove(move);
+		if (game.justExecutedMoves) {
+			io.emit("game", game);
+		}
 	});
 });
 
