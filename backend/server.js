@@ -30,20 +30,6 @@ var game = new RoPaSciGame();
 // 	toHex: [-4, 0],
 // });
 
-// game.submitMove({
-// 	player: "Upper",
-// 	throwing: true,
-// 	thrownTokenType: "S",
-// 	toHex: [4, 0],
-// });
-
-// game.submitMove({
-// 	player: "Lower",
-// 	throwing: true,
-// 	thrownTokenType: "s",
-// 	toHex: [-4, 1],
-// });
-
 io.on("connection", (socket) => {
 	console.log("a user connected");
 	socket.emit("game", game);
