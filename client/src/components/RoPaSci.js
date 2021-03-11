@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { Container, ButtonGroup, ToggleButton } from "react-bootstrap";
 
 import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://localhost:5000";
+// const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "/";
 
 const TOKEN_IMG_PATH = {
 	r: "/images/token-r-lower.png",
@@ -15,9 +16,6 @@ const TOKEN_IMG_PATH = {
 
 const UPPER = "Upper";
 const LOWER = "Lower";
-
-// alias for pseudo-hex from which one picks up tokens to throw
-const THROW = "throw";
 
 class Game extends Component {
 	constructor(props) {
@@ -56,7 +54,7 @@ class Game extends Component {
 				toHex: this.state.toHex,
 			};
 		} else {
-			const move = {
+			move = {
 				player: this.state.playingAs,
 				throwing: false,
 				fromHex: this.state.fromHex,
@@ -239,7 +237,11 @@ class Game extends Component {
 												style={style}
 												onClick={this.onClickHex(tokenType)}
 											>
-												<img src={TOKEN_IMG_PATH[tokenType]} width="60%" />
+												<img
+													src={TOKEN_IMG_PATH[tokenType]}
+													width="60%"
+													alt="Throw token"
+												/>
 											</div>
 										</span>
 									</div>
