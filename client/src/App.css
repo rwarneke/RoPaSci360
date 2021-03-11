@@ -137,9 +137,9 @@
 	display: grid;
 	grid-gap: 0.2rem;
 	grid-template-columns: repeat(18, 1fr);
-	width: 50rem;
+	width: 30rem;
 	max-width: 100%;
-	margin: 2rem auto;
+	margin: 1rem auto;
 	list-style-type: none;
 	overflow: hidden;
 	padding: 0rem;
@@ -238,4 +238,15 @@
 }
 .hex:nth-child(57) {
 	grid-column-start: 5;
+}
+
+#upperScore,
+#lowerScore {
+	font-size: 5rem;
+	font-weight: bolder;
+	margin: 0 2rem;
+}
+
+#lowerScore {
+	color: #ae213b;
 }

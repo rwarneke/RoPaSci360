@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import { Container, ButtonGroup, ToggleButton } from "react-bootstrap";
+import { Container, ButtonGroup, ToggleButton, Button } from "react-bootstrap";
 
 import socketIOClient from "socket.io-client";
-// const ENDPOINT = "http://localhost:5000";
-const ENDPOINT = "/";
+// const ENDPOINT = "/";
+const ENDPOINT = "http://localhost:5000";
 
 const TOKEN_IMG_PATH = {
 	r: "/images/token-r-lower.png",
@@ -111,6 +111,8 @@ class Game extends Component {
 	onChangePlayingAs = (e) => {
 		this.setState({
 			playingAs: e.target.value,
+			fromHex: null,
+			toHex: null,
 		});
 	};
 
@@ -219,7 +221,15 @@ class Game extends Component {
 			this.state.playingAs === UPPER ? ["R", "P", "S"] : ["r", "p", "s"];
 
 		return (
-			<Container>
+			<Container style={{ marginTop: "1rem" }}>
+				<div className="center">
+					<span id="upperScore">
+						{this.state.game ? this.state.game.nCaptured.Upper : 0}
+					</span>
+					<span id="lowerScore">
+						{this.state.game ? this.state.game.nCaptured.Lower : 0}
+					</span>
+				</div>
 				<div>
 					<ul id="hexGrid">{hexes}</ul>
 					<ul id="throwHexGrid">
@@ -250,12 +260,8 @@ class Game extends Component {
 						})}
 					</ul>
 				</div>
-				<div className="center">
-					<div>
-						<p>
-							<strong>Playing as</strong>
-						</p>
-					</div>
+				<hr />
+				<div>
 					<div>
 						<ButtonGroup toggle>
 							<ToggleButton
@@ -279,8 +285,19 @@ class Game extends Component {
 								Lower
 							</ToggleButton>
 						</ButtonGroup>
+						<Button
+							variant="outline-info"
+							onClick={() => {
+								this.state.socket.emit("reset game");
+							}}
+							style={{ float: "right" }}
+						>
+							New game
+						</Button>
 					</div>
+					<br />
 				</div>
+				<div></div>
 			</Container>
 		);
 	}
