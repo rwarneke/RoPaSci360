@@ -5,7 +5,7 @@ const DRAW = "Draw";
 
 class Game {
 	static MAX_N_MOVES = 360;
-	static MAX_N_THROWS = 9;
+	static MAX_N_THROWS = 1;
 
 	static NEMISIS = {
 		r: "P",
@@ -37,9 +37,9 @@ class Game {
 		};
 
 		// number of throws taken by each player to this point
-		this.nThrows = {
-			Upper: 0,
-			Lower: 0,
+		this.nThrowsRemaining = {
+			Upper: Game.MAX_N_THROWS,
+			Lower: Game.MAX_N_THROWS,
 		};
 
 		// the number of each token type on the total board
@@ -56,7 +56,7 @@ class Game {
 		this.nMoves = 0;
 
 		// the number of tokens captured by each player
-		// this could technically be derived from nThrows and tokenCounts
+		// this could technically be derived from nThrowsRemaining and tokenCounts
 		// this is really the "score" of the game. First to 9 wins.
 		this.nCaptured = {
 			Upper: 0,
@@ -175,11 +175,12 @@ class Game {
 
 		if (throwing) {
 			// must have a throw available
-			if (this.nThrows[player] === Game.MAX_N_THROWS) return false;
+			if (this.nThrowsRemaining[player] === 0) return false;
 			// for throw n, must be on first n rows
 			let r = toHex[0];
 			let row = player === UPPER ? 5 - r : 5 + r;
-			let n = this.nThrows[player] + 1;
+			let nThrowsTaken = Game.MAX_N_THROWS - this.nThrowsRemaining[player];
+			let n = nThrowsTaken + 1;
 			return row <= n;
 		} else {
 			// okay, it's not a throw, it's a movement on the board
@@ -302,7 +303,7 @@ class Game {
 	invincible(player) {
 		// test whether a player has invincible tokens
 		const otherPlayer = Game.otherPlayer(player);
-		if (this.nThrows[otherPlayer] < Game.MAX_N_THROWS) {
+		if (this.nThrowsRemaining[otherPlayer] > 0) {
 			// other player still has throws left!
 			return false;
 		}
@@ -342,7 +343,7 @@ class Game {
 			// keep track of the toHexes for later
 			toHexes.push(toHex);
 			if (throwing) {
-				this.nThrows[player]++;
+				this.nThrowsRemaining[player]--;
 				this.tokenCounts[thrownTokenType]++;
 				this.board[toHex][thrownTokenType]++;
 			} else {

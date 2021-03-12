@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { Container, ButtonGroup, ToggleButton, Button } from "react-bootstrap";
+import {
+	Container,
+	ButtonGroup,
+	ToggleButton,
+	Button,
+	Row,
+	Col,
+} from "react-bootstrap";
 
 import socketIOClient from "socket.io-client";
 const ENDPOINT = "/";
@@ -30,13 +37,15 @@ function equal(hex1, hex2) {
 	return hex1.toString() === hex2.toString();
 }
 
-// function otherPlayer(player) {
-// 	if (player === UPPER) return LOWER;
-// 	if (player === LOWER) return UPPER;
-// 	return undefined;
-// }
+function otherPlayer(player) {
+	if (player === UPPER) return LOWER;
+	if (player === LOWER) return UPPER;
+	return undefined;
+}
 
 class Game extends Component {
+	static MAX_N_THROWS = 9;
+
 	constructor(props) {
 		super(props);
 
@@ -130,7 +139,9 @@ class Game extends Component {
 			// needs to be on first n rows
 			let r = toHex[0];
 			let row = us === UPPER ? 5 - r : 5 + r;
-			let n = this.state.game.nThrows[us] + 1;
+			let nThrowsTaken =
+				Game.MAX_N_THROWS - this.state.game.nThrowsRemaining[us];
+			let n = nThrowsTaken + 1;
 			console.log(row, n);
 			return row <= n;
 		} else {
@@ -313,6 +324,21 @@ class Game extends Component {
 		}
 	};
 
+	gameMetaJSX = (player, top) => {
+		const style =
+			player === UPPER ? { color: "#000000" } : { color: "#ae213b" };
+		const score = this.state.game ? this.state.game.nCaptured[player] : 0;
+		const remThrows = this.state.game
+			? this.state.game.nThrowsRemaining[player]
+			: "";
+		const JSXElements = [
+			<div className="playerScore">{score}</div>,
+			<div className="playerRemThrows">{remThrows}</div>,
+		];
+		if (!top) JSXElements.reverse();
+		return <span style={style}>{JSXElements}</span>;
+	};
+
 	render() {
 		var hexes = [];
 		for (let r = 4; r >= -4; r--) {
@@ -464,58 +490,67 @@ class Game extends Component {
 		}
 
 		return (
-			<Container style={{ marginTop: "1rem" }}>
-				<div className="center">
-					<span id="upperScore">
-						{this.state.game ? this.state.game.nCaptured.Upper : 0}
-					</span>
-					<span id="lowerScore">
-						{this.state.game ? this.state.game.nCaptured.Lower : 0}
-					</span>
-				</div>
-				<div id="board" onClick={this.onBoardClick}>
-					<ul id="throwHexGrid">{theirThrowHexGrid}</ul>
-					<ul id="hexGrid">{hexes}</ul>
-					<ul id="throwHexGrid">{ourThrowHexGrid}</ul>
-				</div>
-				<div id="winner-banner" className="center">
-					{winnerMessage}
-				</div>
-				<hr />
-				<div>
-					<ButtonGroup toggle>
-						<ToggleButton
-							key="upper"
-							value={UPPER}
-							type="radio"
-							variant="outline-dark"
-							checked={this.state.playingAs === UPPER}
-							onChange={this.onChangePlayingAs}
-						>
-							Upper
-						</ToggleButton>
-						<ToggleButton
-							key="lower"
-							value={LOWER}
-							type="radio"
-							variant="outline-danger"
-							checked={this.state.playingAs === LOWER}
-							onChange={this.onChangePlayingAs}
-						>
-							Lower
-						</ToggleButton>
-					</ButtonGroup>
-					<Button
-						variant="outline-info"
-						onClick={() => {
-							this.state.socket.emit("reset game");
-						}}
-						style={{ float: "right" }}
-					>
-						New game
-					</Button>
-					<br />
-				</div>
+			<Container style={{ marginTop: "1rem" }} id="gameContainer">
+				<Row>
+					<Col sm={8} id="board-wrapper">
+						<div id="board" onClick={this.onBoardClick}>
+							<ul id="throwHexGrid">{theirThrowHexGrid}</ul>
+							<ul id="hexGrid">{hexes}</ul>
+							<ul id="throwHexGrid">{ourThrowHexGrid}</ul>
+						</div>
+					</Col>
+					<Col sm={4} id="game-meta-wrapper" className="centerVertically">
+						<div id="topScore" className="center">
+							{this.gameMetaJSX(otherPlayer(this.state.playingAs), true)}
+						</div>
+						<div className="centerVertically" style={{ width: "100%" }}>
+							<div className="center" style={{ width: "100%" }}>
+								<div>
+									<hr />
+									<ButtonGroup toggle>
+										<ToggleButton
+											key="upper"
+											value={UPPER}
+											type="radio"
+											variant="outline-dark"
+											checked={this.state.playingAs === UPPER}
+											onChange={this.onChangePlayingAs}
+										>
+											Upper
+										</ToggleButton>
+										<ToggleButton
+											key="lower"
+											value={LOWER}
+											type="radio"
+											variant="outline-danger"
+											checked={this.state.playingAs === LOWER}
+											onChange={this.onChangePlayingAs}
+										>
+											Lower
+										</ToggleButton>
+									</ButtonGroup>
+								</div>
+								<div id="winner-banner" className="centerVertically">
+									{winnerMessage}
+								</div>
+								<div>
+									<Button
+										variant="outline-info"
+										onClick={() => {
+											this.state.socket.emit("reset game");
+										}}
+									>
+										New game
+									</Button>
+								</div>
+								<hr />
+							</div>
+						</div>
+						<div id="bottomScore" className="center">
+							{this.gameMetaJSX(this.state.playingAs, false)}
+						</div>
+					</Col>
+				</Row>
 			</Container>
 		);
 	}
