@@ -64,6 +64,7 @@ class Game extends Component {
 			fromHex: null,
 			toHex: null,
 			thrownTokenType: null,
+			windowWidth: window.innerWidth,
 		};
 
 		socket.on("game", (game) => {
@@ -74,6 +75,20 @@ class Game extends Component {
 				toHex: null,
 			});
 		});
+	}
+
+	handleResize = (e) => {
+		this.setState({
+			windowWidth: window.innerWidth,
+		});
+	};
+
+	componentDidMount() {
+		window.addEventListener("resize", this.handleResize);
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener("resize", this.handleResize);
 	}
 
 	submitMove = () => {
@@ -216,17 +231,19 @@ class Game extends Component {
 
 	invincible = (player) => {
 		const otherPlayer = Game.otherPlayer(player);
-		if (!this.game) return undefined;
-		if (this.game.nThrowsRemaining[otherPlayer] > 0) return false;
+		const game = this.state.game;
+		if (!game) return undefined;
+		if (game.nThrowsRemaining[otherPlayer] > 0) return false;
 		const ourTokenTypes = player === UPPER ? "RPS" : "rps";
 		for (let tt of ourTokenTypes) {
-			if (this.game.tokenCounts[tt]) {
+			if (game.tokenCounts[tt]) {
 				var nemisis = Game.NEMISIS[tt];
-				if (!this.game.tokenCounts[nemisis]) {
+				if (!game.tokenCounts[nemisis]) {
 					return true;
 				}
 			}
 		}
+		return false;
 	};
 
 	cancelMove = () => {
@@ -348,16 +365,19 @@ class Game extends Component {
 		}
 	};
 
-	gameMetaJSX = (player, top) => {
+	// create the JSX for the game meta describing a players score
+	playerMetaJSX = (player, top) => {
 		const style =
 			player === UPPER ? { color: "#000000" } : { color: "#ae213b" };
 		const score = this.state.game ? this.state.game.nCaptured[player] : 0;
 		const remThrows = this.state.game
 			? this.state.game.nThrowsRemaining[player]
 			: "";
+		const invincible = this.invincible(player) ? "Invincible" : "";
 		const JSXElements = [
 			<div className="playerScore">{score}</div>,
 			<div className="playerRemThrows">{remThrows}</div>,
+			<div className="playerInvincible">{invincible}</div>,
 		];
 		if (!top) JSXElements.reverse();
 		return <span style={style}>{JSXElements}</span>;
@@ -369,17 +389,6 @@ class Game extends Component {
 			let qmin = -4 - Math.min(r, 0);
 			let qmax = 4 - Math.max(r, 0);
 			for (let q = qmin; q <= qmax; q++) {
-				// // styles
-				// let styleFromHex =
-				// 	this.state.fromHex &&
-				// 	[r, q].toString() === this.state.fromHex.toString()
-				// 		? { backgroundColor: "#add49b" }
-				// 		: {};
-				// let styleToHex =
-				// 	this.state.toHex && [r, q].toString() === this.state.toHex.toString()
-				// 		? { backgroundColor: "#ebe9a7" }
-				// 		: {};
-				// tokens
 				var ourTokens = {
 					tokenType: null,
 					count: 0,
@@ -503,16 +512,6 @@ class Game extends Component {
 			);
 		});
 
-		var winnerMessage = "";
-		if (this.state.game && this.state.game.gameOver) {
-			const winner = this.state.game.winner;
-			if (winner === "Draw") {
-				winnerMessage = "Game over. It's a draw!";
-			} else {
-				winnerMessage = `Game over. ${winner} wins!`;
-			}
-		}
-
 		var message = "";
 		if (this.state.game) {
 			if (this.state.game.gameOver) {
@@ -528,74 +527,109 @@ class Game extends Component {
 			}
 		}
 
-		return (
-			<Container style={{ marginTop: "1rem" }} id="gameContainer">
-				<Row>
-					<Col sm={8} id="board-wrapper">
+		const topScore = this.playerMetaJSX(
+			Game.otherPlayer(this.state.playingAs),
+			true
+		);
+		const bottomScore = this.playerMetaJSX(this.state.playingAs, false);
+
+		const gameControls = (
+			<div className="center" style={{ width: "100%" }}>
+				<div>
+					<ButtonGroup toggle>
+						<ToggleButton
+							key="upper"
+							value={UPPER}
+							type="radio"
+							variant="outline-dark"
+							checked={this.state.playingAs === UPPER}
+							onChange={this.onChangePlayingAs}
+						>
+							Upper
+						</ToggleButton>
+						<ToggleButton
+							key="lower"
+							value={LOWER}
+							type="radio"
+							variant="outline-danger"
+							checked={this.state.playingAs === LOWER}
+							onChange={this.onChangePlayingAs}
+						>
+							Lower
+						</ToggleButton>
+					</ButtonGroup>
+				</div>
+				<div id="message-banner" className="centerVertically">
+					{message}
+				</div>
+				<div>
+					<Button
+						variant="outline-info"
+						onClick={() => {
+							this.state.socket.emit("reset game");
+						}}
+					>
+						New game
+					</Button>
+				</div>
+			</div>
+		);
+
+		if (this.state.windowWidth < 576) {
+			// things look very different on mobile
+			return (
+				<Container id="gameContainerXS">
+					<div id="topScoreXS" className="center">
+						{topScore}
+					</div>
+					<div id="board-wrapper">
 						<div id="board" onClick={this.onBoardClick}>
 							<ul id="throwHexGrid">{theirThrowHexGrid}</ul>
 							<ul id="hexGrid">{hexes}</ul>
 							<ul id="throwHexGrid">{ourThrowHexGrid}</ul>
 						</div>
-					</Col>
-					<Col sm={4} id="game-meta-wrapper" className="centerVertically">
-						<div id="topScore" className="center">
-							{this.gameMetaJSX(Game.otherPlayer(this.state.playingAs), true)}
-						</div>
-						<div
-							className="centerVertically"
-							id="gameMetaMain"
-							style={{ width: "100%" }}
-						>
-							<div className="center" style={{ width: "100%" }}>
+					</div>
+					<div id="bottomScoreXS" className="center">
+						{bottomScore}
+					</div>
+					<hr />
+					{gameControls}
+				</Container>
+			);
+		} else {
+			return (
+				<Container style={{ marginTop: "1rem" }} id="gameContainer">
+					<Row>
+						<Col sm={8} id="board-wrapper">
+							<div id="board" onClick={this.onBoardClick}>
+								<ul id="throwHexGrid">{theirThrowHexGrid}</ul>
+								<ul id="hexGrid">{hexes}</ul>
+								<ul id="throwHexGrid">{ourThrowHexGrid}</ul>
+							</div>
+						</Col>
+						<Col sm={4} id="game-meta-wrapper" className="centerVertically">
+							<div id="topScore" className="center">
+								{topScore}
+							</div>
+							<div
+								className="centerVertically"
+								id="gameControls"
+								style={{ width: "100%" }}
+							>
 								<div>
 									<hr />
-									<ButtonGroup toggle>
-										<ToggleButton
-											key="upper"
-											value={UPPER}
-											type="radio"
-											variant="outline-dark"
-											checked={this.state.playingAs === UPPER}
-											onChange={this.onChangePlayingAs}
-										>
-											Upper
-										</ToggleButton>
-										<ToggleButton
-											key="lower"
-											value={LOWER}
-											type="radio"
-											variant="outline-danger"
-											checked={this.state.playingAs === LOWER}
-											onChange={this.onChangePlayingAs}
-										>
-											Lower
-										</ToggleButton>
-									</ButtonGroup>
+									{gameControls}
+									<hr />
 								</div>
-								<div id="winner-banner" className="centerVertically">
-									{message}
-								</div>
-								<div>
-									<Button
-										variant="outline-info"
-										onClick={() => {
-											this.state.socket.emit("reset game");
-										}}
-									>
-										New game
-									</Button>
-								</div>
-								<hr />
 							</div>
-						</div>
-						<div id="bottomScore" className="center">
-							{this.gameMetaJSX(this.state.playingAs, false)}
-						</div>
-					</Col>
-				</Row>
-			</Container>
-		);
+							<div id="bottomScore" className="center">
+								{bottomScore}
+							</div>
+						</Col>
+					</Row>
+				</Container>
+			);
+		}
 	}
 }
 

@@ -259,12 +259,6 @@
 
 /************************************/
 
-#topScore,
-#bottomScore {
-	/* font-size: 5rem; */
-	/* font-weight: bolder; */
-}
-
 .playerScore {
 	font-size: 5rem;
 	line-height: 1;
@@ -273,6 +267,10 @@
 
 .playerRemThrows {
 	font-size: 2rem;
+	font-weight: bolder;
+}
+
+.playerInvincible {
 	font-weight: bolder;
 }
 
@@ -289,31 +287,34 @@
 	bottom: 0;
 }
 
-#winner-banner {
+#topScoreXS,
+#bottomScoreXS {
+	height: 9.5rem;
+}
+
+#message-banner {
 	font-size: large;
 	font-weight: bold;
 	height: 3rem;
 }
 
-#board-wrapper,
 #game-meta-wrapper {
-	/* border: 1px black solid; */
-}
-
-#gameContainer {
-	/* border: 0.2rem black solid; */
-}
-
-#game-meta-wrapper,
-#board-wrapper {
 	border-left: 1px rgba(0, 0, 0, 0.1) solid;
 }
 
-#game-meta-wrapper {
-	border-right: 1px rgba(0, 0, 0, 0.1) solid;
-}
-
-#gameMetaMain {
+#gameControls {
 	padding-top: 10.5rem;
 	padding-bottom: 10.5rem;
 }
+
+#gameContainer {
+	max-height: 100vh;
+	padding: 1rem;
+	border: 0.1rem rgba(0, 0, 0, 0.1) solid;
+}
+
+#gameContainerXS {
+	margin-bottom: 1rem;
+}
+
+/************************************/
