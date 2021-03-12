@@ -267,6 +267,7 @@
 
 .playerScore {
 	font-size: 5rem;
+	line-height: 1;
 	font-weight: bolder;
 }
 

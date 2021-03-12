@@ -36,6 +36,7 @@ io.on("connection", (socket) => {
 
 	socket.on("reset game", () => {
 		game = new RoPaSciGame();
+		console.log("GAME RESET");
 		io.emit("game", game.publicVersion());
 	});
 

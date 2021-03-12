@@ -37,14 +37,17 @@ function equal(hex1, hex2) {
 	return hex1.toString() === hex2.toString();
 }
 
-function otherPlayer(player) {
-	if (player === UPPER) return LOWER;
-	if (player === LOWER) return UPPER;
-	return undefined;
-}
-
 class Game extends Component {
 	static MAX_N_THROWS = 9;
+
+	static NEMISIS = {
+		r: "P",
+		p: "S",
+		s: "R",
+		R: "p",
+		P: "s",
+		S: "r",
+	};
 
 	constructor(props) {
 		super(props);
@@ -110,6 +113,12 @@ class Game extends Component {
 		} else {
 			return Boolean(tokens.r || tokens.p || tokens.s);
 		}
+	};
+
+	static otherPlayer = (player) => {
+		if (player === UPPER) return LOWER;
+		if (player === LOWER) return UPPER;
+		return undefined;
 	};
 
 	legalFromHex = (hex) => {
@@ -204,6 +213,21 @@ class Game extends Component {
 		if (q < qmin || q > qmax) return false;
 		return true;
 	}
+
+	invincible = (player) => {
+		const otherPlayer = Game.otherPlayer(player);
+		if (!this.game) return undefined;
+		if (this.game.nThrowsRemaining[otherPlayer] > 0) return false;
+		const ourTokenTypes = player === UPPER ? "RPS" : "rps";
+		for (let tt of ourTokenTypes) {
+			if (this.game.tokenCounts[tt]) {
+				var nemisis = Game.NEMISIS[tt];
+				if (!this.game.tokenCounts[nemisis]) {
+					return true;
+				}
+			}
+		}
+	};
 
 	cancelMove = () => {
 		this.setState({
@@ -489,6 +513,21 @@ class Game extends Component {
 			}
 		}
 
+		var message = "";
+		if (this.state.game) {
+			if (this.state.game.gameOver) {
+				const winner = this.state.game.winner;
+				if (winner === "Draw") {
+					message = "Game over. It's a draw!";
+				} else {
+					message = `Game over. ${winner} wins!`;
+				}
+			} else {
+				const nMoves = this.state.game.nMoves;
+				message = `Moves: ${nMoves}`;
+			}
+		}
+
 		return (
 			<Container style={{ marginTop: "1rem" }} id="gameContainer">
 				<Row>
@@ -501,7 +540,7 @@ class Game extends Component {
 					</Col>
 					<Col sm={4} id="game-meta-wrapper" className="centerVertically">
 						<div id="topScore" className="center">
-							{this.gameMetaJSX(otherPlayer(this.state.playingAs), true)}
+							{this.gameMetaJSX(Game.otherPlayer(this.state.playingAs), true)}
 						</div>
 						<div
 							className="centerVertically"
@@ -535,7 +574,7 @@ class Game extends Component {
 									</ButtonGroup>
 								</div>
 								<div id="winner-banner" className="centerVertically">
-									{winnerMessage}
+									{message}
 								</div>
 								<div>
 									<Button
