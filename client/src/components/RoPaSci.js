@@ -503,7 +503,11 @@ class Game extends Component {
 						<div id="topScore" className="center">
 							{this.gameMetaJSX(otherPlayer(this.state.playingAs), true)}
 						</div>
-						<div className="centerVertically" style={{ width: "100%" }}>
+						<div
+							className="centerVertically"
+							id="gameMetaMain"
+							style={{ width: "100%" }}
+						>
 							<div className="center" style={{ width: "100%" }}>
 								<div>
 									<hr />
