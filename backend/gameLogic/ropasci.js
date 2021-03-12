@@ -31,6 +31,11 @@ class Game {
 			Lower: null,
 		};
 
+		this.lastMoves = {
+			Upper: null,
+			Lower: null,
+		};
+
 		// number of throws taken by each player to this point
 		this.nThrows = {
 			Upper: 0,
@@ -107,10 +112,15 @@ class Game {
 		return board;
 	}
 
+	publicVersion = () => {
+		const { nextMoves, ...rest } = this;
+		return rest;
+	};
+
 	submitMove(move) {
 		this.justExecutedMoves = false;
 		if (this.legalMove(move)) {
-			console.log("move accepted");
+			console.log(`move accepted (${move.player})`);
 			const { player } = move;
 			this.nextMoves[player] = move;
 			if (this.nextMoves.Lower && this.nextMoves.Upper) {
@@ -118,7 +128,21 @@ class Game {
 				this.justExecutedMoves = true;
 			}
 		} else {
-			console.log("move rejected");
+			console.log(`move rejected (${move.player})`);
+		}
+	}
+
+	cancelMove(player) {
+		if (player !== UPPER && player !== LOWER) {
+			console.log(`move cancellation rejected (invalid player ${player})`);
+		}
+		if (!this.nextMoves[player]) {
+			console.log(`move cancellation rejected (${player})`);
+			return false;
+		} else {
+			this.nextMoves[player] = null;
+			console.log(`move cancellation accepted (${player})`);
+			return true;
 		}
 	}
 
@@ -212,75 +236,6 @@ class Game {
 				return false;
 			}
 		}
-
-		// const { player, actionType, fromHex, tokenType, toHex } = move;
-		// // move must contain certain parameters
-		// if (!player || !actionType || !tokenType || !toHex) return false;
-
-		// // validate player
-		// if (![UPPER, LOWER].includes(player)) return false;
-		// // validate action
-		// if (![ACTION_THROW, ACTION_SLIDE, ACTION_SWING].includes(actionType))
-		// 	return false;
-		// // validate to hex
-		// if (!Game.validHex(toHex)) return false;
-		// // validate token type
-		// if (!Game.validTokenType(tokenType, player)) return false;
-		// // validate from hex if necessary
-		// if (actionType != ACTION_THROW) {
-		// 	if (!Game.validHex(fromHex)) return false;
-		// }
-
-		// switch (actionType) {
-		// 	case ACTION_THROW:
-		// 		/*
-		// 		- must have a throw available
-		// 		- must throw onto the first n rows if this is the nth throw
-		// 		*/
-		// 		if (this.nThrows[player] === Game.MAX_N_THROWS) {
-		// 			return false;
-		// 		} else {
-		// 			// this is the nth throw, where n-1 throws have happened
-		// 			var n = this.nThrows[player] + 1;
-		// 		}
-		// 		let r = toHex[0];
-		// 		let row = player === UPPER ? 5 - r : 5 + r;
-		// 		return row <= n;
-		// 	case ACTION_SLIDE:
-		// 		/*
-		// 		- move must be distance 1
-		// 		*/
-		// 		return distanceBetween(fromHex, toHex) === 1;
-		// 	case ACTION_SWING:
-		// 		/*
-		// 		this is super nasty. a swing action is one in which the player
-		// 		"swings" around one of its own pieces. it must start next to
-		// 		a friendly piece, and finish on one of the up-to-three hexes
-		// 		on the *opposite* side of the friendly hex.
-
-		// 		to translate this into our code, note that any swing action
-		// 		necessarily moves the piece a distance of two.
-
-		// 		also notice that the hex about which we swing must be distance
-		// 		one from both the start and end hexes. we will messily implement
-		// 		this by evaluating the up-to-six hexes of distance one from the
-		// 		from hex, then testing each of them to see if
-		// 		- they are distance one from the to hex; and
-		// 		- they are occupied by a friendly piece.
-		// 		if these conditions are met, the move is legal.
-		// 		*/
-		// 		if (distanceBetween(fromHex, toHex) !== 2) return false;
-		// 		const d1Hexes = Game.hexesOfDistanceOne(fromHex);
-		// 		for (let hex of d1Hexes) {
-		// 			if (distanceBetween(hex, toHex) === 1 && occupies(hex, player)) {
-		// 				return true;
-		// 			}
-		// 		}
-		// 		// couldn't find a hex meeting the requirements
-		// 		return false;
-		// 	default:
-		// 		return false;
-		// }
 	}
 
 	occupies(hex, player) {
@@ -305,7 +260,7 @@ class Game {
 		// we can also take steps "s" direction, which is equivalent to (1,-1).
 		// so we should discount the distance by min(abs(dr), abs(ds)) if
 		// r and s have opposite signs.
-		if (Math.sign(dr) != Math.sign(dq)) {
+		if (Math.sign(dr) !== Math.sign(dq)) {
 			const discount = Math.min(Math.abs(dr), Math.abs(dq));
 			distance -= discount;
 		}
@@ -415,6 +370,10 @@ class Game {
 		// acknowledge the increase in moves (for draw-checking purposes)
 		this.nMoves++;
 
+		// save these moves as last moves
+		this.lastMoves.Lower = this.nextMoves.Lower;
+		this.lastMoves.Upper = this.nextMoves.Upper;
+		// and clear them as the next moves, since they've now been executed
 		this.nextMoves.Upper = this.nextMoves.Lower = null;
 
 		// check endgame

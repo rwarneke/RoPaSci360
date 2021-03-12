@@ -36,15 +36,19 @@ io.on("connection", (socket) => {
 
 	socket.on("reset game", () => {
 		game = new RoPaSciGame();
-		io.emit("game", game);
+		io.emit("game", game.publicVersion());
 	});
 
 	socket.on("move", (move) => {
 		game.submitMove(move);
 		if (game.justExecutedMoves) {
 			console.log("emitting game...");
-			io.emit("game", game);
+			io.emit("game", game.publicVersion());
 		}
+	});
+
+	socket.on("cancel move", (player) => {
+		game.cancelMove(player);
 	});
 });
 
