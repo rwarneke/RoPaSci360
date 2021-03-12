@@ -27,9 +27,9 @@ const LOWER = "Lower";
 const LAST_MOVE_TOHEX_LOWER = "#e0b8c0";
 const LAST_MOVE_TOHEX_UPPER = "#ababab";
 
-// const sleep = (milliseconds) => {
-// 	return new Promise((resolve) => setTimeout(resolve, milliseconds));
-// };
+const sleep = (milliseconds) => {
+	return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
 
 function equal(hex1, hex2) {
 	if (hex1 === hex2) return true;
@@ -65,6 +65,8 @@ class Game extends Component {
 			toHex: null,
 			thrownTokenType: null,
 			windowWidth: window.innerWidth,
+			passnplay: false,
+			toggled: false,
 		};
 
 		socket.on("game", (game) => {
@@ -73,6 +75,7 @@ class Game extends Component {
 				game: game,
 				fromHex: null,
 				toHex: null,
+				toggled: false,
 			});
 		});
 	}
@@ -110,6 +113,18 @@ class Game extends Component {
 		}
 		console.log("Submitting", move);
 		this.state.socket.emit("move", move);
+
+		// toggle the player if we haven't since the last board and pass and play is activated
+		if (this.state.passnplay && !this.state.toggled) {
+			sleep(200).then(() => {
+				this.setState({
+					playingAs: Game.otherPlayer(this.state.playingAs),
+					fromHex: null,
+					toHex: null,
+					toggled: true,
+				});
+			});
+		}
 	};
 
 	onBoardClick = () => {
@@ -375,9 +390,15 @@ class Game extends Component {
 			: "";
 		const invincible = this.invincible(player) ? "Invincible" : "";
 		const JSXElements = [
-			<div className="playerScore">{score}</div>,
-			<div className="playerRemThrows">{remThrows}</div>,
-			<div className="playerInvincible">{invincible}</div>,
+			<div key="pscore" className="playerScore">
+				{score}
+			</div>,
+			<div key="premthrows" className="playerRemThrows">
+				{remThrows}
+			</div>,
+			<div key="pinvinc" className="playerInvincible">
+				{invincible}
+			</div>,
 		];
 		if (!top) JSXElements.reverse();
 		return <span style={style}>{JSXElements}</span>;
@@ -527,6 +548,14 @@ class Game extends Component {
 			}
 		}
 
+		const board = (
+			<div id="board" onClick={this.onBoardClick}>
+				<ul id="throwHexGrid">{theirThrowHexGrid}</ul>
+				<ul id="hexGrid">{hexes}</ul>
+				<ul id="throwHexGrid">{ourThrowHexGrid}</ul>
+			</div>
+		);
+
 		const topScore = this.playerMetaJSX(
 			Game.otherPlayer(this.state.playingAs),
 			true
@@ -534,7 +563,7 @@ class Game extends Component {
 		const bottomScore = this.playerMetaJSX(this.state.playingAs, false);
 
 		const gameControls = (
-			<div className="center" style={{ width: "100%" }}>
+			<div className="center">
 				<div>
 					<ButtonGroup toggle>
 						<ToggleButton
@@ -544,6 +573,9 @@ class Game extends Component {
 							variant="outline-dark"
 							checked={this.state.playingAs === UPPER}
 							onChange={this.onChangePlayingAs}
+							style={{
+								width: "5rem",
+							}}
 						>
 							Upper
 						</ToggleButton>
@@ -554,23 +586,46 @@ class Game extends Component {
 							variant="outline-danger"
 							checked={this.state.playingAs === LOWER}
 							onChange={this.onChangePlayingAs}
+							style={{
+								width: "5rem",
+							}}
 						>
 							Lower
 						</ToggleButton>
 					</ButtonGroup>
 				</div>
-				<div id="message-banner" className="centerVertically">
-					{message}
+				<div>
+					<strong>Pass-n-play </strong>
+					<ButtonGroup toggle>
+						<ToggleButton
+							type="checkbox"
+							variant="outline-secondary"
+							checked={this.state.passnplay}
+							onChange={() => {
+								this.setState({
+									passnplay: !this.state.passnplay,
+								});
+							}}
+							style={{
+								width: "3rem",
+							}}
+						>
+							{this.state.passnplay ? "On" : "Off"}
+						</ToggleButton>
+					</ButtonGroup>
 				</div>
 				<div>
 					<Button
-						variant="outline-info"
+						variant="warning"
 						onClick={() => {
 							this.state.socket.emit("reset game");
 						}}
 					>
 						New game
 					</Button>
+				</div>
+				<div id="message-banner" className="centerVertically">
+					{message}
 				</div>
 			</div>
 		);
@@ -579,16 +634,12 @@ class Game extends Component {
 			// things look very different on mobile
 			return (
 				<Container id="gameContainerXS">
+					<h1 className="center">RoPaSci360 Online</h1>
+					<hr />
 					<div id="topScoreXS" className="center">
 						{topScore}
 					</div>
-					<div id="board-wrapper">
-						<div id="board" onClick={this.onBoardClick}>
-							<ul id="throwHexGrid">{theirThrowHexGrid}</ul>
-							<ul id="hexGrid">{hexes}</ul>
-							<ul id="throwHexGrid">{ourThrowHexGrid}</ul>
-						</div>
-					</div>
+					<div id="board-wrapper">{board}</div>
 					<div id="bottomScoreXS" className="center">
 						{bottomScore}
 					</div>
@@ -598,14 +649,12 @@ class Game extends Component {
 			);
 		} else {
 			return (
-				<Container style={{ marginTop: "1rem" }} id="gameContainer">
+				<Container id="gameContainer">
+					<h1 className="center">RoPaSci360 Online</h1>
+					<hr />
 					<Row>
 						<Col sm={8} id="board-wrapper">
-							<div id="board" onClick={this.onBoardClick}>
-								<ul id="throwHexGrid">{theirThrowHexGrid}</ul>
-								<ul id="hexGrid">{hexes}</ul>
-								<ul id="throwHexGrid">{ourThrowHexGrid}</ul>
-							</div>
+							{board}
 						</Col>
 						<Col sm={4} id="game-meta-wrapper" className="centerVertically">
 							<div id="topScore" className="center">
@@ -616,7 +665,7 @@ class Game extends Component {
 								id="gameControls"
 								style={{ width: "100%" }}
 							>
-								<div>
+								<div style={{ width: "100%" }}>
 									<hr />
 									{gameControls}
 									<hr />

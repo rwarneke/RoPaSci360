@@ -137,9 +137,8 @@
 	display: grid;
 	grid-gap: 0.2rem;
 	grid-template-columns: repeat(18, 1fr);
-	width: 40rem;
+	width: 38rem;
 	max-width: 100%;
-	/* margin: 1rem auto; */
 	list-style-type: none;
 	overflow: hidden;
 	padding: 0rem;
@@ -260,17 +259,27 @@
 /************************************/
 
 .playerScore {
+	height: 5rem;
 	font-size: 5rem;
 	line-height: 1;
 	font-weight: bolder;
 }
 
+/* aesthetic adjustment since numbers tend to sit low in their box */
+#bottomScore .playerScore,
+#bottomScoreXS .playerScore {
+	margin-top: -0.4rem;
+	margin-bottom: 0.4rem;
+}
+
 .playerRemThrows {
+	height: 3rem;
 	font-size: 2rem;
 	font-weight: bolder;
 }
 
 .playerInvincible {
+	height: 1.5rem;
 	font-weight: bolder;
 }
 
@@ -308,13 +317,19 @@
 }
 
 #gameContainer {
-	max-height: 100vh;
 	padding: 1rem;
 	border: 0.1rem rgba(0, 0, 0, 0.1) solid;
 }
 
+#gameContainer,
 #gameContainerXS {
+	margin-top: 1rem;
 	margin-bottom: 1rem;
 }
 
 /************************************/
+
+button,
+.btn {
+	margin: 0.3rem 0 !important;
+}
