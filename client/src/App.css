@@ -271,8 +271,7 @@
 }
 
 /* aesthetic adjustment since numbers tend to sit low in their box */
-#bottomScore .playerScore,
-#bottomScoreXS .playerScore {
+#bottomScore .playerScore {
 	margin-top: -0.4rem;
 	margin-bottom: 0.4rem;
 }
@@ -307,7 +306,6 @@
 }
 
 #message-banner {
-	font-size: large;
 	font-weight: bold;
 	height: 3rem;
 }
@@ -323,7 +321,15 @@
 
 #gameContainer {
 	padding: 1rem;
+	margin: 0 auto;
+	/* width: 100%; */
+	max-width: 1140px; /* in line with container in xl */
 	border: 0.1rem rgba(0, 0, 0, 0.1) solid;
+}
+
+#contentContainer {
+	padding-left: 3%;
+	padding-right: 3%;
 }
 
 #gameContainer,
@@ -334,9 +340,9 @@
 
 /************************************/
 
-button,
-.btn {
-	margin: 0.3rem 0 !important;
+.standardButton {
+	margin-top: 0.3rem !important;
+	margin-bottom: 0.3rem !important;
 }
 
 #mainContainer {
@@ -364,4 +370,8 @@ button,
 #rightThrowBar {
 	bottom: 0;
 	right: -2%;
+}
+
+#gameOverModal {
+	max-width: 25rem;
 }

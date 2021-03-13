@@ -6,6 +6,7 @@ import {
 	Button,
 	Row,
 	Col,
+	Modal,
 } from "react-bootstrap";
 
 import socketIOClient from "socket.io-client";
@@ -26,6 +27,19 @@ const LOWER = "Lower";
 
 const COLOUR_PALE_LOWER = "#e0b8c0";
 const COLOUR_PALE_UPPER = "#ababab";
+
+const COLOUR_LOWER = "#ae213b";
+const COLOUR_UPPER = "#000000";
+
+const scoreColours = {
+	[UPPER]: COLOUR_UPPER,
+	[LOWER]: COLOUR_LOWER,
+};
+
+const throwBarColours = {
+	[UPPER]: COLOUR_PALE_UPPER,
+	[LOWER]: COLOUR_PALE_LOWER,
+};
 
 const sleep = (milliseconds) => {
 	return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -73,6 +87,10 @@ class Game extends Component {
 			windowWidth: window.innerWidth,
 			passnplay: false,
 			toggled: false,
+
+			showGameOverModal: false,
+			gameOverModalDismissed: false,
+			haveSeenGameWhenNotOver: false,
 		};
 
 		socket.on("game", (game) => {
@@ -83,6 +101,21 @@ class Game extends Component {
 				toHex: null,
 				toggled: false,
 			});
+			if (game.gameOver) {
+				if (
+					this.state.haveSeenGameWhenNotOver &&
+					!this.state.gameOverModalDismissed
+				) {
+					console.log("show it!!!");
+					this.setState({
+						showGameOverModal: true,
+					});
+				}
+			} else {
+				this.setState({
+					haveSeenGameWhenNotOver: true,
+				});
+			}
 		});
 	}
 
@@ -126,14 +159,18 @@ class Game extends Component {
 		// toggle the player if we haven't since the last board and pass and play is activated
 		if (this.state.passnplay && !this.state.toggled) {
 			sleep(200).then(() => {
-				this.setState({
-					playingAs: Game.otherPlayer(this.state.playingAs),
-					fromHex: null,
-					toHex: null,
-					toggled: true,
-				});
+				this.togglePlayer();
 			});
 		}
+	};
+
+	togglePlayer = () => {
+		this.setState({
+			playingAs: Game.otherPlayer(this.state.playingAs),
+			fromHex: null,
+			toHex: null,
+			toggled: true,
+		});
 	};
 
 	cancelMove = () => {
@@ -154,6 +191,10 @@ class Game extends Component {
 		this.state.socket.emit("reset game", {
 			lobbyID,
 		});
+		this.setState({
+			gameOverModalDismissed: false,
+			haveSeenGameWhenNotOver: false,
+		});
 	};
 
 	onBoardClick = () => {
@@ -162,6 +203,13 @@ class Game extends Component {
 			// treat this as a cancellation of the move, no matter what
 			this.cancelMove();
 		}
+	};
+
+	handleGameOverModalClose = () => {
+		this.setState({
+			gameOverModalDismissed: true,
+			showGameOverModal: false,
+		});
 	};
 
 	weOccupy = (hex) => {
@@ -551,24 +599,39 @@ class Game extends Component {
 		});
 
 		var message = "";
+		var gameOverMessage = "";
 		if (game) {
 			if (game.gameOver) {
 				const winner = game.winner;
 				if (winner === "Draw") {
-					message = "Game over. It's a draw!";
+					gameOverMessage = `Draw by ${game.gameOverReason}.`;
 				} else {
-					message = `Game over. ${winner} wins!`;
+					gameOverMessage = `${winner} wins by ${game.gameOverReason}.`;
 				}
+				message = "Game over. " + gameOverMessage;
 			} else {
 				const nMoves = game.nMoves;
 				message = `Moves: ${nMoves}`;
 			}
 		}
 
-		const throwBarColours = {
-			[UPPER]: COLOUR_PALE_UPPER,
-			[LOWER]: COLOUR_PALE_LOWER,
-		};
+		const gameOverModal = (
+			<Modal
+				show={this.state.showGameOverModal}
+				onHide={this.handleGameOverModalClose}
+				backdrop="static"
+				keyboard={true}
+				id="gameOverModal"
+			>
+				<Modal.Header closeButton>
+					<Modal.Title>Game over!</Modal.Title>
+				</Modal.Header>
+				<Modal.Body closeButton>
+					<strong>{gameOverMessage}</strong>
+				</Modal.Body>
+			</Modal>
+		);
+
 		const throwBarStyles = {};
 		[UPPER, LOWER].forEach((player) => {
 			const backgroundColor = throwBarColours[player];
@@ -578,13 +641,41 @@ class Game extends Component {
 			} else {
 				const nThrows = game.nThrowsTaken[player];
 				const n = nThrows + 1;
-				const pct = 0.032075 + 0.096225 * n;
-				height = `${((3 * n) / 28) * 100}%`;
+				const nThrowsRemaining = game.nThrowsRemaining[player];
+				if (nThrowsRemaining === 0) {
+					height = 0;
+				} else {
+					height = `${((3 * n) / 28) * 100}%`;
+				}
 			}
 			throwBarStyles[player] = {
 				backgroundColor,
 				height,
 			};
+		});
+
+		const scoreComponents = {};
+		[UPPER, LOWER].forEach((player) => {
+			const style = {
+				color: scoreColours[player],
+			};
+			const score = this.state.game ? this.state.game.nCaptured[player] : 0;
+			const remThrows = this.state.game
+				? this.state.game.nThrowsRemaining[player]
+				: "";
+			const invincible = this.invincible(player) ? "Invincible" : "";
+			const JSXElements = [
+				<div style={style} key="pscore" className="playerScore">
+					{score}
+				</div>,
+				<div style={style} key="premthrows" className="playerRemThrows">
+					{remThrows}
+				</div>,
+				<div style={style} key="pinvinc" className="playerInvincible">
+					{invincible}
+				</div>,
+			];
+			scoreComponents[player] = JSXElements;
 		});
 
 		const board = (
@@ -602,9 +693,6 @@ class Game extends Component {
 			</div>
 		);
 
-		const topScore = this.playerMetaJSX(Game.otherPlayer(playingAs), true);
-		const bottomScore = this.playerMetaJSX(playingAs, false);
-
 		const gameControls = (
 			<div className="center">
 				<div>
@@ -619,6 +707,7 @@ class Game extends Component {
 							style={{
 								width: "5rem",
 							}}
+							className="standardButton"
 						>
 							Upper
 						</ToggleButton>
@@ -632,6 +721,7 @@ class Game extends Component {
 							style={{
 								width: "5rem",
 							}}
+							className="standardButton"
 						>
 							Lower
 						</ToggleButton>
@@ -648,17 +738,25 @@ class Game extends Component {
 								this.setState({
 									passnplay: !passnplay,
 								});
+								if (this.state.fromHex && this.state.toHex) {
+									this.togglePlayer();
+								}
 							}}
 							style={{
 								width: "3rem",
 							}}
+							className="standardButton"
 						>
 							{passnplay ? "On" : "Off"}
 						</ToggleButton>
 					</ButtonGroup>
 				</div>
 				<div>
-					<Button variant="warning" onClick={this.newGame}>
+					<Button
+						variant="warning"
+						onClick={this.newGame}
+						className="standardButton"
+					>
 						Reset game
 					</Button>
 				</div>
@@ -672,19 +770,18 @@ class Game extends Component {
 			// things look very different on mobile
 			return (
 				<Container id="gameContainerXS">
+					{gameOverModal}
 					<h1 className="center">RoPaSci360 Online</h1>
 					<hr />
 					<Row>
 						<Col xs={6}>
-							{" "}
 							<div id="topScoreXS" className="center">
-								{topScore}
+								{scoreComponents[Game.otherPlayer(playingAs)]}
 							</div>
 						</Col>
 						<Col xs={6}>
-							{" "}
 							<div id="bottomScoreXS" className="center">
-								{bottomScore}
+								{scoreComponents[playingAs]}
 							</div>
 						</Col>
 					</Row>
@@ -695,34 +792,37 @@ class Game extends Component {
 			);
 		} else {
 			return (
-				<Container id="gameContainer">
-					<h1 className="center">RoPaSci360 Online</h1>
-					<hr />
-					<Row>
-						<Col sm={8} id="board-wrapper">
-							{board}
-						</Col>
-						<Col sm={4} id="game-meta-wrapper" className="centerVertically">
-							<div id="topScore" className="center">
-								{topScore}
-							</div>
-							<div
-								className="centerVertically"
-								id="gameControls"
-								style={{ width: "100%" }}
-							>
-								<div style={{ width: "100%" }}>
-									<hr />
-									{gameControls}
-									<hr />
+				<div id="contentContainer">
+					<div id="gameContainer">
+						{gameOverModal}
+						<h1 className="center">RoPaSci360 Online</h1>
+						<hr />
+						<Row>
+							<Col sm={8} id="board-wrapper">
+								{board}
+							</Col>
+							<Col sm={4} id="game-meta-wrapper" className="centerVertically">
+								<div id="topScore" className="center">
+									{scoreComponents[Game.otherPlayer(playingAs)]}
 								</div>
-							</div>
-							<div id="bottomScore" className="center">
-								{bottomScore}
-							</div>
-						</Col>
-					</Row>
-				</Container>
+								<div
+									className="centerVertically"
+									id="gameControls"
+									style={{ width: "100%" }}
+								>
+									<div style={{ width: "100%" }}>
+										<hr />
+										{gameControls}
+										<hr />
+									</div>
+								</div>
+								<div id="bottomScore" className="center">
+									{scoreComponents[playingAs].reverse()}
+								</div>
+							</Col>
+						</Row>
+					</div>
+				</div>
 			);
 		}
 	}

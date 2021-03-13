@@ -5,7 +5,7 @@ const DRAW = "Draw";
 
 class Game {
 	static MAX_N_MOVES = 10;
-	static MAX_N_THROWS = 9;
+	static MAX_N_THROWS = 3;
 
 	static NEMISIS = {
 		r: "P",
@@ -68,10 +68,21 @@ class Game {
 			Lower: 0,
 		};
 
+		this.gameStateCounts = {};
+
 		this.gameOver = false;
+		this.gameOverReason = null;
 		this.winner = null;
 
 		this.justExecutedMoves = false;
+	}
+
+	hash() {
+		const { board, nThrowsRemaining } = this;
+		return uniqueJSONstringify({
+			board,
+			nThrowsRemaining,
+		});
 	}
 
 	static emptyBoard() {
@@ -382,6 +393,18 @@ class Game {
 		// and clear them as the next moves, since they've now been executed
 		this.nextMoves.Upper = this.nextMoves.Lower = null;
 
+		// record the game state for repetition checking
+		const hash = this.hash();
+		var drawByRepetition = false;
+		if (this.gameStateCounts[hash]) {
+			this.gameStateCounts[hash]++;
+			if (this.gameStateCounts[hash] === 3) {
+				drawByRepetition = true;
+			}
+		} else {
+			this.gameStateCounts[hash] = 1;
+		}
+
 		// check endgame
 
 		/*
@@ -396,12 +419,14 @@ class Game {
 			this.nCaptured.Lower === Game.MAX_N_THROWS
 		) {
 			this.gameOver = true;
+			this.gameOverReason = "double elimination";
 			this.winner = DRAW;
 			return;
 		}
 		for (let player of [UPPER, LOWER]) {
 			if (this.nCaptured[player] === Game.MAX_N_THROWS) {
 				this.gameOver = true;
+				this.gameOverReason = "elimination";
 				this.winner = player;
 				return;
 			}
@@ -414,6 +439,7 @@ class Game {
 		*/
 		if (this.invincible(UPPER) && this.invincible(LOWER)) {
 			this.gameOver = true;
+			this.gameOverReason = "double invincibility";
 			this.winner = DRAW;
 			return;
 		}
@@ -429,6 +455,7 @@ class Game {
 				if (this.nCaptured[player] === Game.MAX_N_THROWS - 1) {
 					// yes!
 					this.gameOver = true;
+					this.gameOverReason = "invincibility";
 					this.winner = player;
 					return;
 				}
@@ -441,6 +468,12 @@ class Game {
 		of throws remaining for each player), occurs for a third time since the
 		start of the game (not necessarily in succession): Declare a draw.
 		*/
+		if (drawByRepetition) {
+			this.gameOver = true;
+			this.gameOverReason = "repetition";
+			this.winner = DRAW;
+			return;
+		}
 
 		/*
 		5: The players have had their 360th turn without a winner being 
@@ -448,6 +481,7 @@ class Game {
 		*/
 		if (this.nMoves >= Game.MAX_N_MOVES) {
 			this.gameOver = true;
+			this.gameOverReason = "move limit";
 			this.winner = DRAW;
 			return;
 		}
@@ -487,22 +521,19 @@ class Game {
 	}
 }
 
-// game = new Game();
-
-// move1 = {
-// 	player: "Upper",
-// 	actionType: "throw",
-// 	tokenType: "S",
-// 	toHex: [4, -2],
-// };
-// game.submitMove(move1);
-
-// move2 = {
-// 	player: "Lower",
-// 	actionType: "throw",
-// 	tokenType: "r",
-// 	toHex: [-4, 1],
-// };
-// game.submitMove(move2);
+function uniqueJSONstringify(thing) {
+	if (typeof thing === "object") {
+		const arr = [];
+		const keys = Object.keys(thing);
+		keys.sort();
+		for (let key of keys) {
+			arr.push(JSON.stringify(key));
+			arr.push(uniqueJSONstringify(thing[key]));
+		}
+		return JSON.stringify(arr);
+	} else {
+		return JSON.stringify(thing);
+	}
+}
 
 module.exports = Game;

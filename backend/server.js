@@ -88,7 +88,7 @@ function validLobbyID(lobbyID) {
 	return lobbyID.match(lobbyIDRegex);
 }
 
-if (process.env.NODE_ENV === "production" || true) {
+if (process.env.NODE_ENV === "production") {
 	console.log("production");
 	app.use(express.static(path.join(__dirname, "../client/build")));
 
