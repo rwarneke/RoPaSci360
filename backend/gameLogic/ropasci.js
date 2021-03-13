@@ -286,7 +286,7 @@ class Game {
 			[r, q + 1],
 			[r - 1, q],
 			[r - 1, q + 1],
-		].filter((hex) => Game.validHex(hex));
+		].filter((hex) => Game.validBoardHex(hex));
 	}
 
 	static validBoardHex(hex) {

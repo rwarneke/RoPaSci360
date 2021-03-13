@@ -750,7 +750,7 @@ class Game extends Component {
 							key="lower"
 							value={LOWER}
 							type="radio"
-							variant="outline-danger"
+							variant="outline-dark"
 							checked={playingAs === LOWER}
 							onChange={this.onChangePlayingAs}
 							style={{
@@ -767,7 +767,7 @@ class Game extends Component {
 					<ButtonGroup toggle>
 						<ToggleButton
 							type="checkbox"
-							variant="outline-secondary"
+							variant="outline-dark"
 							checked={passnplay}
 							onChange={() => {
 								this.setState({
