@@ -140,7 +140,6 @@
 	width: 40rem;
 	max-width: 100%;
 	list-style-type: none;
-	overflow: hidden;
 	padding: 0rem;
 }
 
@@ -258,7 +257,7 @@
 	grid-column-start: 5;
 }
 
-.hex:last-child {
+.hex:nth-last-child(3) {
 	padding-bottom: 28.9%;
 }
 
@@ -343,4 +342,26 @@ button,
 #mainContainer {
 	margin-top: 1rem;
 	margin-bottom: 1rem;
+}
+
+#hexGrid {
+	position: relative;
+}
+
+#leftThrowBar,
+#rightThrowBar {
+	position: absolute;
+	width: 5%;
+	z-index: -1;
+	border-radius: 0.5rem;
+}
+
+#leftThrowBar {
+	top: 0;
+	left: -2%;
+}
+
+#rightThrowBar {
+	bottom: 0;
+	right: -2%;
 }

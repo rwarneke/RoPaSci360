@@ -1,0 +1,7 @@
+cringe ui log
+grey out throw tokens at zero
+pop up on game over
+
+endgame can still appear to move (draw 360)
+change green if illegal yellow
+add legal start rows

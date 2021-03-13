@@ -54,17 +54,20 @@ io.on("connection", (socket) => {
 
 		if (games[lobbyID]) {
 			delete games[lobbyID];
+		} else {
+			console.log(
+				`Created ${Object.keys(games).length + 1}th game (${lobbyID})`
+			);
 		}
 
 		games[lobbyID] = game;
-		console.log(`Created ${Object.keys(games).length}th game (${lobbyID})`);
 		io.in(lobbyID).emit("game", game.publicVersion());
 	});
 
 	socket.on("move", (data) => {
 		const { lobbyID, move } = data;
 		if (!validLobbyID(lobbyID)) return;
-		const game = games[lobbyID];
+		var game = games[lobbyID];
 		if (!game) return;
 
 		game.submitMove(move);

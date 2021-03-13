@@ -42,6 +42,11 @@ class Game {
 			Lower: Game.MAX_N_THROWS,
 		};
 
+		this.nThrowsTaken = {
+			Upper: 0,
+			Lower: 0,
+		};
+
 		// the number of each token type on the total board
 		this.tokenCounts = {
 			r: 0,
@@ -120,7 +125,7 @@ class Game {
 	submitMove(move) {
 		this.justExecutedMoves = false;
 		if (this.legalMove(move)) {
-			console.log(`move accepted (${move.player})`);
+			// console.log(`move accepted (${move.player})`);
 			const { player } = move;
 			this.nextMoves[player] = move;
 			if (this.nextMoves.Lower && this.nextMoves.Upper) {
@@ -128,20 +133,20 @@ class Game {
 				this.justExecutedMoves = true;
 			}
 		} else {
-			console.log(`move rejected (${move.player})`);
+			// console.log(`move rejected (${move.player})`);
 		}
 	}
 
 	cancelMove(player) {
 		if (player !== UPPER && player !== LOWER) {
-			console.log(`move cancellation rejected (invalid player ${player})`);
+			// console.log(`move cancellation rejected (invalid player ${player})`);
 		}
 		if (!this.nextMoves[player]) {
-			console.log(`move cancellation rejected (${player})`);
+			// console.log(`move cancellation rejected (${player})`);
 			return false;
 		} else {
 			this.nextMoves[player] = null;
-			console.log(`move cancellation accepted (${player})`);
+			// console.log(`move cancellation accepted (${player})`);
 			return true;
 		}
 	}
@@ -327,7 +332,6 @@ class Game {
 	}
 
 	executeMoves() {
-		console.log("executing...");
 		// move the tokens
 		var toHexes = [];
 		for (let move of [this.nextMoves.Lower, this.nextMoves.Upper]) {
@@ -344,6 +348,7 @@ class Game {
 			toHexes.push(toHex);
 			if (throwing) {
 				this.nThrowsRemaining[player]--;
+				this.nThrowsTaken[player]++;
 				this.tokenCounts[thrownTokenType]++;
 				this.board[toHex][thrownTokenType]++;
 			} else {

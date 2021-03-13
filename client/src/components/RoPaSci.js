@@ -24,8 +24,8 @@ const TOKEN_IMG_PATH = {
 const UPPER = "Upper";
 const LOWER = "Lower";
 
-const LAST_MOVE_TOHEX_LOWER = "#e0b8c0";
-const LAST_MOVE_TOHEX_UPPER = "#ababab";
+const COLOUR_PALE_LOWER = "#e0b8c0";
+const COLOUR_PALE_UPPER = "#ababab";
 
 const sleep = (milliseconds) => {
 	return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -207,8 +207,7 @@ class Game extends Component {
 			// needs to be on first n rows
 			let r = toHex[0];
 			let row = us === UPPER ? 5 - r : 5 + r;
-			let nThrowsTaken =
-				Game.MAX_N_THROWS - this.state.game.nThrowsRemaining[us];
+			let nThrowsTaken = this.state.game.nThrowsTaken[us];
 			let n = nThrowsTaken + 1;
 			console.log(row, n);
 			return row <= n;
@@ -318,18 +317,18 @@ class Game extends Component {
 
 				var topColour, bottomColour;
 				if (this.state.playingAs === UPPER) {
-					topColour = LAST_MOVE_TOHEX_LOWER;
-					bottomColour = LAST_MOVE_TOHEX_UPPER;
+					topColour = COLOUR_PALE_LOWER;
+					bottomColour = COLOUR_PALE_UPPER;
 				} else {
-					topColour = LAST_MOVE_TOHEX_UPPER;
-					bottomColour = LAST_MOVE_TOHEX_LOWER;
+					topColour = COLOUR_PALE_UPPER;
+					bottomColour = COLOUR_PALE_LOWER;
 				}
 
 				style.background = `linear-gradient(0deg, ${bottomColour} 50%, ${topColour} 50%`;
 			} else if (lowerEndHex) {
-				style.backgroundColor = LAST_MOVE_TOHEX_LOWER;
+				style.backgroundColor = COLOUR_PALE_LOWER;
 			} else if (upperEndHex) {
-				style.backgroundColor = LAST_MOVE_TOHEX_UPPER;
+				style.backgroundColor = COLOUR_PALE_UPPER;
 			}
 		}
 		return style;
@@ -424,6 +423,7 @@ class Game extends Component {
 
 	render() {
 		var hexes = [];
+		const { game, playingAs, fromHex, passnplay, windowWidth } = this.state;
 		for (let r = 4; r >= -4; r--) {
 			let qmin = -4 - Math.min(r, 0);
 			let qmax = 4 - Math.max(r, 0);
@@ -436,8 +436,8 @@ class Game extends Component {
 					tokenType: null,
 					count: 0,
 				};
-				if (this.state.game) {
-					let hexContent = this.state.game.board[[r, q]];
+				if (game) {
+					let hexContent = game.board[[r, q]];
 					for (let tt in hexContent) {
 						if (hexContent[tt]) {
 							if (this.tokenIsOurs(tt)) {
@@ -500,18 +500,17 @@ class Game extends Component {
 		}
 
 		// invert the orientation for upper
-		if (this.state.playingAs === UPPER) {
+		if (playingAs === UPPER) {
 			hexes.reverse();
 		}
 
 		let ourThrowTokens =
-			this.state.playingAs === UPPER ? ["R", "P", "S"] : ["r", "p", "s"];
+			playingAs === UPPER ? ["R", "P", "S"] : ["r", "p", "s"];
 		let theirThrowTokens =
-			this.state.playingAs === UPPER ? ["r", "p", "s"] : ["R", "P", "S"];
+			playingAs === UPPER ? ["r", "p", "s"] : ["R", "P", "S"];
 
 		let ourThrowHexGrid = ourThrowTokens.map((tokenType) => {
-			let style =
-				this.state.fromHex === tokenType ? { backgroundColor: "#add49b" } : {};
+			let style = fromHex === tokenType ? { backgroundColor: "#add49b" } : {};
 			return (
 				<li className="hex" key={"throw-" + tokenType}>
 					<div className="hexIn">
@@ -552,33 +551,59 @@ class Game extends Component {
 		});
 
 		var message = "";
-		if (this.state.game) {
-			if (this.state.game.gameOver) {
-				const winner = this.state.game.winner;
+		if (game) {
+			if (game.gameOver) {
+				const winner = game.winner;
 				if (winner === "Draw") {
 					message = "Game over. It's a draw!";
 				} else {
 					message = `Game over. ${winner} wins!`;
 				}
 			} else {
-				const nMoves = this.state.game.nMoves;
+				const nMoves = game.nMoves;
 				message = `Moves: ${nMoves}`;
 			}
 		}
 
+		const throwBarColours = {
+			[UPPER]: COLOUR_PALE_UPPER,
+			[LOWER]: COLOUR_PALE_LOWER,
+		};
+		const throwBarStyles = {};
+		[UPPER, LOWER].forEach((player) => {
+			const backgroundColor = throwBarColours[player];
+			var height;
+			if (!game) {
+				height = "0";
+			} else {
+				const nThrows = game.nThrowsTaken[player];
+				const n = nThrows + 1;
+				const pct = 0.032075 + 0.096225 * n;
+				height = `${((3 * n) / 28) * 100}%`;
+			}
+			throwBarStyles[player] = {
+				backgroundColor,
+				height,
+			};
+		});
+
 		const board = (
 			<div id="board" onClick={this.onBoardClick}>
 				<ul id="throwHexGrid">{theirThrowHexGrid}</ul>
-				<ul id="hexGrid">{hexes}</ul>
+				<ul id="hexGrid">
+					{hexes}
+					<div
+						id="leftThrowBar"
+						style={throwBarStyles[Game.otherPlayer(playingAs)]}
+					></div>
+					<div id="rightThrowBar" style={throwBarStyles[playingAs]}></div>
+				</ul>
 				<ul id="throwHexGrid">{ourThrowHexGrid}</ul>
 			</div>
 		);
 
-		const topScore = this.playerMetaJSX(
-			Game.otherPlayer(this.state.playingAs),
-			true
-		);
-		const bottomScore = this.playerMetaJSX(this.state.playingAs, false);
+		const topScore = this.playerMetaJSX(Game.otherPlayer(playingAs), true);
+		const bottomScore = this.playerMetaJSX(playingAs, false);
 
 		const gameControls = (
 			<div className="center">
@@ -589,7 +614,7 @@ class Game extends Component {
 							value={UPPER}
 							type="radio"
 							variant="outline-dark"
-							checked={this.state.playingAs === UPPER}
+							checked={playingAs === UPPER}
 							onChange={this.onChangePlayingAs}
 							style={{
 								width: "5rem",
@@ -602,7 +627,7 @@ class Game extends Component {
 							value={LOWER}
 							type="radio"
 							variant="outline-danger"
-							checked={this.state.playingAs === LOWER}
+							checked={playingAs === LOWER}
 							onChange={this.onChangePlayingAs}
 							style={{
 								width: "5rem",
@@ -618,17 +643,17 @@ class Game extends Component {
 						<ToggleButton
 							type="checkbox"
 							variant="outline-secondary"
-							checked={this.state.passnplay}
+							checked={passnplay}
 							onChange={() => {
 								this.setState({
-									passnplay: !this.state.passnplay,
+									passnplay: !passnplay,
 								});
 							}}
 							style={{
 								width: "3rem",
 							}}
 						>
-							{this.state.passnplay ? "On" : "Off"}
+							{passnplay ? "On" : "Off"}
 						</ToggleButton>
 					</ButtonGroup>
 				</div>
@@ -643,19 +668,27 @@ class Game extends Component {
 			</div>
 		);
 
-		if (this.state.windowWidth < 576) {
+		if (windowWidth < 576) {
 			// things look very different on mobile
 			return (
 				<Container id="gameContainerXS">
 					<h1 className="center">RoPaSci360 Online</h1>
 					<hr />
-					<div id="topScoreXS" className="center">
-						{topScore}
-					</div>
+					<Row>
+						<Col xs={6}>
+							{" "}
+							<div id="topScoreXS" className="center">
+								{topScore}
+							</div>
+						</Col>
+						<Col xs={6}>
+							{" "}
+							<div id="bottomScoreXS" className="center">
+								{bottomScore}
+							</div>
+						</Col>
+					</Row>
 					<div id="board-wrapper">{board}</div>
-					<div id="bottomScoreXS" className="center">
-						{bottomScore}
-					</div>
 					<hr />
 					{gameControls}
 				</Container>
