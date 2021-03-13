@@ -7,14 +7,6 @@ function randomLobby() {
 }
 
 class Home extends Component {
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			lobbyToRedirect: randomLobby(),
-		};
-	}
-
 	render() {
 		console.log(process.env);
 		return (
@@ -29,12 +21,9 @@ class Home extends Component {
 						<Button
 							variant="dark"
 							size="lg"
-							href={`/lobby/${this.state.lobbyToRedirect}`}
-							target="_blank"
-							onClick={() => {
-								this.setState({
-									lobbyToRedirect: randomLobby(),
-								});
+							onClick={(e) => {
+								e.preventDefault();
+								window.open(`/lobby/${randomLobby()}`);
 							}}
 						>
 							Random Lobby
