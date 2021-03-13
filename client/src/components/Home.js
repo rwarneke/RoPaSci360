@@ -58,7 +58,11 @@ class Home extends Component {
 								<ul>
 									<li>
 										Example:{" "}
-										<a href="/lobby/696969" target="_blank">
+										<a
+											href="/lobby/696969"
+											target="_blank"
+											style={{ wordBreak: "break-all" }}
+										>
 											ropasci360.herokuapp.com/lobby/696969
 										</a>
 									</li>
