@@ -348,17 +348,19 @@ class Game extends Component {
 			only now that we're sure we aren't working with a selected hex will
 			we consider highlighting it as a last-move hex
 			*/
-			const lowerEndHex = Boolean(
+			const lowerHex = Boolean(
 				this.state.game &&
 					this.state.game.lastMoves.Lower &&
-					equal(hex, this.state.game.lastMoves.Lower.toHex)
+					(equal(hex, this.state.game.lastMoves.Lower.toHex) ||
+						equal(hex, this.state.game.lastMoves.Lower.fromHex))
 			);
-			const upperEndHex = Boolean(
+			const upperHex = Boolean(
 				this.state.game &&
 					this.state.game.lastMoves.Upper &&
-					equal(hex, this.state.game.lastMoves.Upper.toHex)
+					(equal(hex, this.state.game.lastMoves.Upper.toHex) ||
+						equal(hex, this.state.game.lastMoves.Upper.fromHex))
 			);
-			if (lowerEndHex && upperEndHex) {
+			if (lowerHex && upperHex) {
 				// both players moved here
 				// need to half-n-half it
 				// they will be on the top, we will be on the bottom
@@ -373,9 +375,9 @@ class Game extends Component {
 				}
 
 				style.background = `linear-gradient(0deg, ${bottomColour} 50%, ${topColour} 50%`;
-			} else if (lowerEndHex) {
+			} else if (lowerHex) {
 				style.backgroundColor = COLOUR_PALE_LOWER;
-			} else if (upperEndHex) {
+			} else if (upperHex) {
 				style.backgroundColor = COLOUR_PALE_UPPER;
 			}
 		}
