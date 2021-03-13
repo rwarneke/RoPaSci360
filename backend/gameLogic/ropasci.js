@@ -165,29 +165,19 @@ class Game {
 	legalMove(move) {
 		if (this.gameOver) return false;
 
-		const { player, throwing, thrownTokenType, fromHex, toHex } = move;
+		const { player, fromHex, toHex } = move;
 
 		// VALIDATE PARAMETERS
 		// player
 		if (![UPPER, LOWER].includes(player)) return false;
-		// throwing
-		if (typeof throwing !== "boolean") return false;
-		// tokenType
-		if (throwing) {
-			if (player === UPPER) {
-				if (!"RPS".includes(thrownTokenType)) return false;
-			} else {
-				if (!"rps".includes(thrownTokenType)) return false;
-			}
-		}
 		// fromHex
-		if (!throwing) {
-			if (!Game.validHex(fromHex)) return false;
-		}
+		if (!Game.validBoardOrThrowHex(fromHex)) return false;
 		// toHex
-		if (!Game.validHex(toHex)) return false;
+		if (!Game.validBoardHex(toHex)) return false;
 
 		// console.log("validation complete");
+
+		const throwing = "RPSrps".includes(fromHex);
 
 		if (throwing) {
 			// must have a throw available
@@ -256,6 +246,7 @@ class Game {
 	}
 
 	occupies(hex, player) {
+		if (!Game.validBoardHex(hex)) return undefined;
 		if (player === UPPER) {
 			return Boolean(
 				this.board[hex].R || this.board[hex].P || this.board[hex].S
@@ -268,6 +259,8 @@ class Game {
 	}
 
 	static distanceBetween(hex1, hex2) {
+		if (!Game.validBoardHex(hex1) || !Game.validBoardHex(hex2))
+			return undefined;
 		const [r1, q1] = hex1;
 		const [r2, q2] = hex2;
 		const dr = r2 - r1;
@@ -296,7 +289,8 @@ class Game {
 		].filter((hex) => Game.validHex(hex));
 	}
 
-	static validHex(hex) {
+	static validBoardHex(hex) {
+		// must be a 2-list somewhere on the 61-hex RoPaSci 360 board.
 		if (!hex || !hex.length || hex.length !== 2) return false;
 		const [r, q] = hex;
 		if (!Number.isInteger(r) || !Number.isInteger(q)) return false;
@@ -305,6 +299,16 @@ class Game {
 		let qmax = 4 - Math.max(r, 0);
 		if (q < qmin || q > qmax) return false;
 		return true;
+	}
+
+	static validThrowHex(hex) {
+		// must be a rock, paper, or scissors of either upper or lower
+		return "RPSrps".includes(hex);
+	}
+
+	static validBoardOrThrowHex(hex) {
+		// from hexes are allowed to be throwing hexes
+		return Game.validBoardHex(hex) || Game.validThrowHex(hex);
 	}
 
 	static validTokenType(tokenType, player) {
@@ -347,28 +351,27 @@ class Game {
 		var toHexes = [];
 		for (let move of [this.nextMoves.Lower, this.nextMoves.Upper]) {
 			// the move is assumed to be legal
-			const {
-				player,
-				throwing,
-				thrownTokenType,
-				fromHex,
-				toHex,
-				movedTokenType,
-			} = move;
+			const { player, fromHex, toHex, movedTokenType } = move;
 			// keep track of the toHexes for later
 			toHexes.push(toHex);
-			if (throwing) {
+			if (Game.validThrowHex(fromHex)) {
+				// player is throwing a token
+				const thrownTokenType = fromHex; // recall the overloading
+				// update the number of throws the player has remaining
 				this.nThrowsRemaining[player]--;
 				this.nThrowsTaken[player]++;
+				// add the thrown token to the overall count
 				this.tokenCounts[thrownTokenType]++;
+				// add the token to the board
 				this.board[toHex][thrownTokenType]++;
 			} else {
+				// player is moving a token
 				this.board[fromHex][movedTokenType]--;
 				this.board[toHex][movedTokenType]++;
 			}
 		}
 
-		// capture tokens
+		// battle tokens
 		// we only need to check the toHexes
 		for (let toHex of toHexes) {
 			var defeated = Game.battle(this.board[toHex]);

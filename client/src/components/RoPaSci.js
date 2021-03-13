@@ -26,10 +26,15 @@ const UPPER = "Upper";
 const LOWER = "Lower";
 
 const COLOUR_PALE_LOWER = "#e0b8c0";
-const COLOUR_PALE_UPPER = "#ababab";
+const COLOUR_PALE_UPPER = "#b8c2e0";
 
 const COLOUR_LOWER = "#ae213b";
-const COLOUR_UPPER = "#000000";
+const COLOUR_UPPER = "#2144ae";
+
+const COLOUR_HEX_DEFAULT = "#d3d3d3";
+const COLOUR_HEX_DISABLED = "#707070";
+const COLOUR_HEX_FROM = "#add49b";
+const COLOUR_HEX_TO = "#ebe9a7";
 
 const scoreColours = {
 	[UPPER]: COLOUR_UPPER,
@@ -81,16 +86,18 @@ class Game extends Component {
 
 			game: null,
 			playingAs: UPPER,
+
 			fromHex: null,
 			toHex: null,
-			thrownTokenType: null,
-			windowWidth: window.innerWidth,
+
 			passnplay: false,
 			toggled: false,
 
 			showGameOverModal: false,
 			gameOverModalDismissed: false,
 			haveSeenGameWhenNotOver: false,
+
+			windowWidth: window.innerWidth,
 		};
 
 		socket.on("game", (game) => {
@@ -106,7 +113,6 @@ class Game extends Component {
 					this.state.haveSeenGameWhenNotOver &&
 					!this.state.gameOverModalDismissed
 				) {
-					console.log("show it!!!");
 					this.setState({
 						showGameOverModal: true,
 					});
@@ -134,22 +140,11 @@ class Game extends Component {
 	}
 
 	submitMove = () => {
-		var move;
-		if ("RPSrps".includes(this.state.fromHex)) {
-			move = {
-				player: this.state.playingAs,
-				throwing: true,
-				thrownTokenType: this.state.thrownTokenType,
-				toHex: this.state.toHex,
-			};
-		} else {
-			move = {
-				player: this.state.playingAs,
-				throwing: false,
-				fromHex: this.state.fromHex,
-				toHex: this.state.toHex,
-			};
+		const { playingAs, fromHex, toHex } = this.state;
+		if (!fromHex || !toHex) {
+			console.log("Tried to submit move without one selected");
 		}
+		const move = { player: playingAs, fromHex, toHex };
 		console.log("Submitting", move);
 		this.state.socket.emit("move", {
 			lobbyID: this.state.lobbyID,
@@ -257,7 +252,6 @@ class Game extends Component {
 			let row = us === UPPER ? 5 - r : 5 + r;
 			let nThrowsTaken = this.state.game.nThrowsTaken[us];
 			let n = nThrowsTaken + 1;
-			console.log(row, n);
 			return row <= n;
 		} else {
 			// this is not a throw
@@ -306,10 +300,11 @@ class Game extends Component {
 			[r, q + 1],
 			[r - 1, q],
 			[r - 1, q + 1],
-		].filter((hex) => Game.validHex(hex));
+		].filter((hex) => Game.validBoardHex(hex));
 	}
 
-	static validHex(hex) {
+	static validBoardHex(hex) {
+		// must be a 2-list somewhere on the 61-hex RoPaSci 360 board.
 		if (!hex || !hex.length || hex.length !== 2) return false;
 		const [r, q] = hex;
 		if (!Number.isInteger(r) || !Number.isInteger(q)) return false;
@@ -318,6 +313,19 @@ class Game extends Component {
 		let qmax = 4 - Math.max(r, 0);
 		if (q < qmin || q > qmax) return false;
 		return true;
+	}
+
+	static validThrowHex(hex, player) {
+		// must be a rock, paper, or scissors of either upper or lower
+		if (!player) return "RPSrps".includes(hex);
+		if (player === UPPER) return "RPS".includes(hex);
+		if (player === LOWER) return "rps".includes(hex);
+		return undefined;
+	}
+
+	static validBoardOrThrowHex(hex) {
+		// from hexes are allowed to be throwing hexes
+		return Game.validFromHex(hex) || Game.validThrowHex(hex);
 	}
 
 	invincible = (player) => {
@@ -338,27 +346,40 @@ class Game extends Component {
 	};
 
 	calculateStyle = (hex) => {
-		var style = {};
-		if (equal(hex, this.state.fromHex)) {
-			style.backgroundColor = "#add49b";
-		} else if (equal(hex, this.state.toHex)) {
-			style.backgroundColor = "#ebe9a7";
+		var style = { backgroundColour: COLOUR_HEX_DEFAULT };
+		const { game, fromHex, toHex, playingAs } = this.state;
+		if (!game) {
+			return style;
+		}
+
+		for (let player of [UPPER, LOWER]) {
+			if (Game.validThrowHex(hex, player)) {
+				const playerHasThrowsLeft = game.nThrowsRemaining[player] > 0;
+				if (!playerHasThrowsLeft) {
+					console.log("disabling hex");
+					style.backgroundColor = COLOUR_HEX_DISABLED;
+				}
+			}
+		}
+
+		if (equal(hex, fromHex)) {
+			style.backgroundColor = COLOUR_HEX_FROM;
+		} else if (equal(hex, toHex)) {
+			style.backgroundColor = COLOUR_HEX_TO;
 		} else {
 			/*
 			only now that we're sure we aren't working with a selected hex will
 			we consider highlighting it as a last-move hex
 			*/
 			const lowerHex = Boolean(
-				this.state.game &&
-					this.state.game.lastMoves.Lower &&
-					(equal(hex, this.state.game.lastMoves.Lower.toHex) ||
-						equal(hex, this.state.game.lastMoves.Lower.fromHex))
+				game.lastMoves.Lower &&
+					(equal(hex, game.lastMoves.Lower.toHex) ||
+						equal(hex, game.lastMoves.Lower.fromHex))
 			);
 			const upperHex = Boolean(
-				this.state.game &&
-					this.state.game.lastMoves.Upper &&
-					(equal(hex, this.state.game.lastMoves.Upper.toHex) ||
-						equal(hex, this.state.game.lastMoves.Upper.fromHex))
+				game.lastMoves.Upper &&
+					(equal(hex, game.lastMoves.Upper.toHex) ||
+						equal(hex, game.lastMoves.Upper.fromHex))
 			);
 			if (lowerHex && upperHex) {
 				// both players moved here
@@ -366,7 +387,7 @@ class Game extends Component {
 				// they will be on the top, we will be on the bottom
 
 				var topColour, bottomColour;
-				if (this.state.playingAs === UPPER) {
+				if (playingAs === UPPER) {
 					topColour = COLOUR_PALE_LOWER;
 					bottomColour = COLOUR_PALE_UPPER;
 				} else {
@@ -385,14 +406,23 @@ class Game extends Component {
 	};
 
 	onClickHex = (hex) => () => {
-		if (!this.state.game || this.state.game.gameOver) return;
-		const hexIsThrowHex = "RPSrps".includes(hex);
-		if (hexIsThrowHex) {
+		const { game, fromHex, toHex, playingAs } = this.state;
+		if (!game || game.gameOver) return;
+		if (Game.validThrowHex(hex)) {
+			// clicked on a throw hex
+
+			// must have throws remaining
+			if (game.nThrowsRemaining[playingAs] === 0) return;
+
 			if (this.state.fromHex === hex) {
+				// same as first click
+				// undo it
 				this.setState({
 					fromHex: null,
 				});
 			} else {
+				// different to first click
+				// overwrite it
 				if (this.legalFromHex(hex)) {
 					this.setState({
 						fromHex: hex,
@@ -402,9 +432,9 @@ class Game extends Component {
 				}
 			}
 		} else {
-			if (this.state.fromHex && !this.state.toHex) {
-				// second click.
-				if (equal(hex, this.state.fromHex)) {
+			if (fromHex && !toHex) {
+				// second click
+				if (equal(hex, fromHex)) {
 					// same hex as first click. cancel.
 					this.setState({
 						fromHex: null,
@@ -472,8 +502,8 @@ class Game extends Component {
 	};
 
 	render() {
-		var hexes = [];
-		const { game, playingAs, fromHex, passnplay, windowWidth } = this.state;
+		var boardHexes = [];
+		const { game, playingAs, passnplay, windowWidth } = this.state;
 		for (let r = 4; r >= -4; r--) {
 			let qmin = -4 - Math.min(r, 0);
 			let qmax = 4 - Math.max(r, 0);
@@ -531,7 +561,7 @@ class Game extends Component {
 					}
 				}
 				// html
-				hexes.push(
+				boardHexes.push(
 					<li className="hex" key={[r, q]}>
 						<div className="hexIn">
 							<span className="hexContentOuter">
@@ -551,7 +581,7 @@ class Game extends Component {
 
 		// invert the orientation for upper
 		if (playingAs === UPPER) {
-			hexes.reverse();
+			boardHexes.reverse();
 		}
 
 		let ourThrowTokens =
@@ -560,14 +590,13 @@ class Game extends Component {
 			playingAs === UPPER ? ["r", "p", "s"] : ["R", "P", "S"];
 
 		let ourThrowHexGrid = ourThrowTokens.map((tokenType) => {
-			let style = fromHex === tokenType ? { backgroundColor: "#add49b" } : {};
 			return (
 				<li className="hex" key={"throw-" + tokenType}>
 					<div className="hexIn">
 						<span className="hexContentOuter">
 							<div
 								className="hexContentInner"
-								style={style}
+								style={this.calculateStyle(tokenType)}
 								onClick={this.onClickHex(tokenType)}
 							>
 								<img
@@ -587,7 +616,10 @@ class Game extends Component {
 				<li className="hex" key={"throw-" + tokenType}>
 					<div className="hexIn">
 						<span className="hexContentOuter">
-							<div className="hexContentInner">
+							<div
+								className="hexContentInner"
+								style={this.calculateStyle(tokenType)}
+							>
 								<img
 									src={TOKEN_IMG_PATH[tokenType]}
 									width="60%"
@@ -684,7 +716,7 @@ class Game extends Component {
 			<div id="board" onClick={this.onBoardClick}>
 				<ul id="throwHexGrid">{theirThrowHexGrid}</ul>
 				<ul id="hexGrid">
-					{hexes}
+					{boardHexes}
 					<div
 						id="leftThrowBar"
 						style={throwBarStyles[Game.otherPlayer(playingAs)]}
