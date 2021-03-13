@@ -13,7 +13,7 @@ const ENDPOINT = "/";
 // const ENDPOINT = "http://localhost:5000";
 
 const TOKEN_IMG_PATH = {
-	r: "/images/token-r-lower.png",
+	r: `${process.env.PUBLIC_URL}/images/token-r-lower.png`,
 	p: "/images/token-p-lower.png",
 	s: "/images/token-s-lower.png",
 	R: "/images/token-r-upper.png",
@@ -636,7 +636,7 @@ class Game extends Component {
 				</div>
 				<div>
 					<Button variant="warning" onClick={this.newGame}>
-						New game
+						Reset game
 					</Button>
 				</div>
 				<div id="message-banner" className="centerVertically">

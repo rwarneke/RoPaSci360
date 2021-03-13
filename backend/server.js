@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
 		const { lobbyID } = data;
 
 		if (!validLobbyID(lobbyID)) {
-			console.log("Invalid lobby id");
+			console.log("Invalid lobby id", lobbyID);
 			return;
 		}
 
@@ -35,15 +35,14 @@ io.on("connection", (socket) => {
 
 		var game = games[lobbyID];
 		if (game) {
-			console.log("existing game");
 			// this is an existing game
 			game = games[lobbyID];
 		} else {
-			console.log("creating new game");
 			// no game exists for this lobby
 			// create one
 			game = new RoPaSciGame();
 			games[lobbyID] = game;
+			console.log(`Created ${Object.keys(games).length}th game (${lobbyID})`);
 		}
 		io.in(lobbyID).emit("game", game.publicVersion());
 	});
@@ -58,9 +57,8 @@ io.on("connection", (socket) => {
 		}
 
 		games[lobbyID] = game;
-		console.log("GAME RESET");
+		console.log(`Created ${Object.keys(games).length}th game (${lobbyID})`);
 		io.in(lobbyID).emit("game", game.publicVersion());
-		console.log(Object.keys(games).length, Object.keys(games));
 	});
 
 	socket.on("move", (data) => {
@@ -71,7 +69,6 @@ io.on("connection", (socket) => {
 
 		game.submitMove(move);
 		if (game.justExecutedMoves) {
-			console.log("emitting game...");
 			io.in(lobbyID).emit("game", game.publicVersion());
 		}
 	});
@@ -88,7 +85,7 @@ function validLobbyID(lobbyID) {
 	return lobbyID.match(lobbyIDRegex);
 }
 
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production" || true) {
 	console.log("production");
 	app.use(express.static(path.join(__dirname, "../client/build")));
 
