@@ -360,19 +360,16 @@ class Game extends Component {
 					this.setState({
 						fromHex: null,
 					});
-				} else {
-					// different hex. treat this as the move.
-					if (this.legalToHex(hex)) {
-						// must finish setting state before submitting move
-						this.setState(
-							{
-								toHex: hex,
-							},
-							() => {
-								this.submitMove();
-							}
-						);
-					}
+				} else if (this.legalToHex(hex)) {
+					// legal move. treat it as one.
+					this.setState({ toHex: hex }, () => {
+						this.submitMove();
+					});
+				} else if (this.legalFromHex(hex)) {
+					// player is probably trying to restart their move
+					this.setState({
+						fromHex: hex,
+					});
 				}
 			} else {
 				// first click
