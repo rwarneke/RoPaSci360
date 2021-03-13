@@ -61,8 +61,8 @@ class Home extends Component {
 						<li>How to play</li>
 						<ul>
 							<li>
-								Go to a lobby of your choice, or click the "Random" button to
-								access a random lobby.
+								Go to a lobby of your choice, or click the "Random Lobby" button
+								to access a random lobby.
 								<ul>
 									<li>
 										In case you're wondering, yes, the "Random Lobby" button{" "}

@@ -4,7 +4,7 @@ const LOWER = "Lower";
 const DRAW = "Draw";
 
 class Game {
-	static MAX_N_MOVES = 360;
+	static MAX_N_MOVES = 10;
 	static MAX_N_THROWS = 9;
 
 	static NEMISIS = {

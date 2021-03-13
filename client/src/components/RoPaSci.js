@@ -336,6 +336,7 @@ class Game extends Component {
 	};
 
 	onClickHex = (hex) => () => {
+		if (!this.state.game || this.state.game.gameOver) return;
 		const hexIsThrowHex = "RPSrps".includes(hex);
 		if (hexIsThrowHex) {
 			if (this.state.fromHex === hex) {
