@@ -1,12 +1,39 @@
 import React, { Component } from "react";
 
-import { Container, Button } from "react-bootstrap";
+import { Container, Button, Form, Col } from "react-bootstrap";
+
+// const lobbyIDRegex = new RegExp("^[0-9]{6}$");
+const partialLobbyIDRegex = new RegExp("^[0-9]{0,6}$");
 
 function randomLobby() {
 	return String(Math.floor(1000000 * Math.random())).padStart(6, "0");
 }
 
 class Home extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			lobbyID: "",
+		};
+	}
+
+	onChangeLobbyID = (e) => {
+		const id = e.target.value;
+		if (id.match(partialLobbyIDRegex)) {
+			this.setState({
+				lobbyID: e.target.value,
+			});
+		}
+	};
+
+	onClickGoToLobby = (e) => {
+		e.preventDefault();
+		if (this.state.lobbyID === "") return;
+		const lobby = this.state.lobbyID.padStart(6, "0");
+		window.open(`/lobby/${lobby}`);
+	};
+
 	render() {
 		console.log(process.env);
 		return (
@@ -29,6 +56,28 @@ class Home extends Component {
 							Random Lobby
 						</Button>
 					</div>
+					<Form>
+						<Form.Row className="justify-content-center">
+							<Col xs="auto">
+								<Form.Control
+									id="inlineFormInput"
+									placeholder="Lobby ID"
+									style={{ width: "10rem" }}
+									value={this.state.lobbyID}
+									onChange={this.onChangeLobbyID}
+								/>
+							</Col>
+							<Col xs="auto">
+								<Button
+									type="submit"
+									style={{ width: "10rem" }}
+									onClick={this.onClickGoToLobby}
+								>
+									Go to lobby
+								</Button>
+							</Col>
+						</Form.Row>
+					</Form>
 				</div>
 				<hr />
 				<div id="instructions">
@@ -43,7 +92,7 @@ class Home extends Component {
 							<li>
 								Every link of the form{" "}
 								<i>ropasci360.herokuapp.com/lobby/[6 digit number]</i> contains
-								a unique game.
+								a separate game.
 								<ul>
 									<li>
 										Example:{" "}

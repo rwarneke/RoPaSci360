@@ -696,6 +696,7 @@ class Game extends Component {
 		const gameControls = (
 			<div className="center">
 				<div>
+					<span>Playing as </span>
 					<ButtonGroup toggle>
 						<ToggleButton
 							key="upper"
@@ -728,7 +729,7 @@ class Game extends Component {
 					</ButtonGroup>
 				</div>
 				<div>
-					<strong>Pass-n-Play </strong>
+					<span>Pass-n-Play </span>
 					<ButtonGroup toggle>
 						<ToggleButton
 							type="checkbox"
@@ -771,7 +772,9 @@ class Game extends Component {
 			return (
 				<Container id="gameContainerXS">
 					{gameOverModal}
-					<h1 className="center">RoPaSci360 Online</h1>
+					<h2 className="center">
+						RoPaSci360 Online (Lobby {this.state.lobbyID})
+					</h2>
 					<hr />
 					<Row>
 						<Col xs={6}>
@@ -795,7 +798,9 @@ class Game extends Component {
 				<div id="contentContainer">
 					<div id="gameContainer">
 						{gameOverModal}
-						<h1 className="center">RoPaSci360 Online</h1>
+						<h2 className="center">
+							RoPaSci360 Online (Lobby {this.state.lobbyID})
+						</h2>
 						<hr />
 						<Row>
 							<Col sm={8} id="board-wrapper">
