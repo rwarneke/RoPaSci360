@@ -51,15 +51,21 @@ class Game extends Component {
 
 	constructor(props) {
 		super(props);
+		const lobbyID = this.props.match.params.lobbyID;
 
 		const socket = socketIOClient(ENDPOINT);
 		socket.on("connect", () => {
-			console.log("socket connected");
+			// console.log("socket connected");
+			socket.emit("inform lobby id", {
+				lobbyID,
+			});
 		});
 
 		this.state = {
-			game: null,
 			socket: socket,
+			lobbyID: lobbyID,
+
+			game: null,
 			playingAs: UPPER,
 			fromHex: null,
 			toHex: null,
@@ -112,7 +118,10 @@ class Game extends Component {
 			};
 		}
 		console.log("Submitting", move);
-		this.state.socket.emit("move", move);
+		this.state.socket.emit("move", {
+			lobbyID: this.state.lobbyID,
+			move,
+		});
 
 		// toggle the player if we haven't since the last board and pass and play is activated
 		if (this.state.passnplay && !this.state.toggled) {
@@ -125,6 +134,26 @@ class Game extends Component {
 				});
 			});
 		}
+	};
+
+	cancelMove = () => {
+		this.setState({
+			fromHex: null,
+			toHex: null,
+		});
+		console.log("Cancelling move");
+		this.state.socket.emit("cancel move", {
+			lobbyID: this.state.lobbyID,
+			player: this.state.playingAs,
+		});
+	};
+
+	newGame = () => {
+		console.log("Resetting game");
+		const { lobbyID } = this.state;
+		this.state.socket.emit("reset game", {
+			lobbyID,
+		});
 	};
 
 	onBoardClick = () => {
@@ -259,15 +288,6 @@ class Game extends Component {
 			}
 		}
 		return false;
-	};
-
-	cancelMove = () => {
-		this.setState({
-			fromHex: null,
-			toHex: null,
-		});
-		console.log("Cancelling move");
-		this.state.socket.emit("cancel move", this.state.playingAs);
 	};
 
 	calculateStyle = (hex) => {
@@ -615,12 +635,7 @@ class Game extends Component {
 					</ButtonGroup>
 				</div>
 				<div>
-					<Button
-						variant="warning"
-						onClick={() => {
-							this.state.socket.emit("reset game");
-						}}
-					>
+					<Button variant="warning" onClick={this.newGame}>
 						New game
 					</Button>
 				</div>
