@@ -21,22 +21,25 @@ class Home extends Component {
 			<Container id="mainContainer">
 				<div className="center">
 					<h1>Welcome to RoPaSci360 Online</h1>
-					<Button
-						variant="dark"
-						size="lg"
-						href={`/lobby/${this.state.lobbyToRedirect}`}
-						target="_blank"
+					<div
 						style={{
-							margin: "1rem 0",
-						}}
-						onClick={() => {
-							this.setState({
-								lobbyToRedirect: randomLobby(),
-							});
+							margin: "2rem 0",
 						}}
 					>
-						Random Lobby
-					</Button>
+						<Button
+							variant="dark"
+							size="lg"
+							href={`/lobby/${this.state.lobbyToRedirect}`}
+							target="_blank"
+							onClick={() => {
+								this.setState({
+									lobbyToRedirect: randomLobby(),
+								});
+							}}
+						>
+							Random Lobby
+						</Button>
+					</div>
 				</div>
 				<hr />
 				<div id="instructions">

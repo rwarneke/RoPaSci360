@@ -337,7 +337,7 @@
 
 button,
 .btn {
-	margin: 0.3rem 0;
+	margin: 0.3rem 0 !important;
 }
 
 #mainContainer {

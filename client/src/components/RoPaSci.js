@@ -615,7 +615,7 @@ class Game extends Component {
 					</ButtonGroup>
 				</div>
 				<div>
-					<strong>Pass-n-play </strong>
+					<strong>Pass-n-Play </strong>
 					<ButtonGroup toggle>
 						<ToggleButton
 							type="checkbox"
