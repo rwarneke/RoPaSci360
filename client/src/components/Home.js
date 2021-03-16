@@ -1,6 +1,14 @@
 import React, { Component } from "react";
 
-import { Container, Button, Form, Col } from "react-bootstrap";
+import {
+	Container,
+	Button,
+	Form,
+	Col,
+	Card,
+	CardDeck,
+	CardColumns,
+} from "react-bootstrap";
 
 // const lobbyIDRegex = new RegExp("^[0-9]{6}$");
 const partialLobbyIDRegex = new RegExp("^[0-9]{0,6}$");
@@ -80,61 +88,68 @@ class Home extends Component {
 					</Form>
 				</div>
 				<hr />
-				<div id="instructions">
-					<h3>Instructions</h3>
-					<ul>
-						<li>There are no accounts or sessions</li>
-						<ul>
-							<li>
+				<CardColumns>
+					<Card bg={"light"} key={0} text={"dark"}>
+						<Card.Header>
+							<strong>There are no accounts</strong>
+						</Card.Header>
+						<Card.Body>
+							<Card.Text>
 								Games can be played by anyone at any time. There is no security
 								at all.
-							</li>
-							<li>
+								<hr />
 								Every link of the form{" "}
 								<i>ropasci360.herokuapp.com/lobby/[6 digit number]</i> contains
-								a separate game.
-								<ul>
-									<li>
-										Example:{" "}
-										<a
-											href="/lobby/696969"
-											target="_blank"
-											style={{ wordBreak: "break-all" }}
-										>
-											ropasci360.herokuapp.com/lobby/696969
-										</a>
-									</li>
-								</ul>
-							</li>
-						</ul>
-						<li>How to play</li>
-						<ul>
-							<li>
-								Go to a lobby of your choice, or click the "Random Lobby" button
-								to access a random lobby.
-								<ul>
-									<li>
-										In case you're wondering, yes, the "Random Lobby" button{" "}
-										<i>could</i> put you in a lobby with a game already running.
-										I decided not to fix this, since the awfully structured
-										backend of this app will almost certainly crash long before
-										it's at all probable.
-									</li>
-								</ul>
-							</li>
-							<li>
-								Share the link with a friend. You'll have to agree on who will
-								play as Upper and who will play as Lower.
-								<ul>
-									<li>
-										If you don't have any friends, the Pass-n-Play option makes
-										playing with yourself a little easier.
-									</li>
-								</ul>
-							</li>
-						</ul>
-					</ul>
-				</div>
+								a separate game, e.g.{" "}
+								<a
+									href="/lobby/696969"
+									target="_blank"
+									style={{ wordBreak: "break-all" }}
+								>
+									ropasci360.herokuapp.com/lobby/696969
+								</a>
+							</Card.Text>
+						</Card.Body>
+					</Card>
+					<Card bg={"light"} key={0} text={"dark"}>
+						<Card.Header>
+							<strong>Getting set up</strong>
+						</Card.Header>
+						<Card.Body>
+							<Card.Text>
+								Go to a lobby of your choice, or click the "Random Lobby"
+								button.
+								<hr />
+								Share the link with a friend. The system will try to
+								automatically put you on opposite teams, but remember that
+								anyone can control either side of any game, so you may need to
+								work this out manually.
+							</Card.Text>
+						</Card.Body>
+					</Card>
+					<Card bg={"light"} key={0} text={"dark"}>
+						<Card.Header>
+							<strong>How to play</strong>
+						</Card.Header>
+						<Card.Body>
+							<Card.Text>
+								Despite the player names "Upper" and "Lower", the board will
+								always orient with your throw tokens and first throw row at the
+								bottom of the screen.
+								<hr />
+								No drag-and-drop; you need to click the start and end hex of
+								each move.
+								<hr />
+								The bars on the side of the board show which rows each player
+								can throw hexes onto.
+								<hr />
+								The score shows the number of tokens each player has captured
+								(the large number) and the number of throws they have remaining
+								(the small number).
+							</Card.Text>
+						</Card.Body>
+					</Card>
+				</CardColumns>
 			</Container>
 		);
 	}
