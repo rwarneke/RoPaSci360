@@ -479,6 +479,11 @@ class Game extends Component {
 					this.setState({
 						fromHex: hex,
 					});
+				} else {
+					// illegal move. cancel move.
+					this.setState({
+						fromHex: null,
+					});
 				}
 			} else {
 				// first click
@@ -511,30 +516,6 @@ class Game extends Component {
 			return "rps".includes(token);
 		}
 	};
-
-	// // create the JSX for the game meta describing a players score
-	// playerMetaJSX = (player, top) => {
-	// 	const style =
-	// 		player === UPPER ? { color: "#000000" } : { color: "#ae213b" };
-	// 	const score = this.state.game ? this.state.game.nCaptured[player] : 0;
-	// 	const remThrows = this.state.game
-	// 		? this.state.game.nThrowsRemaining[player]
-	// 		: "";
-	// 	const invincible = this.invincible(player) ? "Invincible" : "";
-	// 	const JSXElements = [
-	// 		<div key="pscore" className="playerScore">
-	// 			{score}
-	// 		</div>,
-	// 		<div key="premthrows" className="playerRemThrows">
-	// 			{remThrows}
-	// 		</div>,
-	// 		<div key="pinvinc" className="playerInvincible">
-	// 			{invincible}
-	// 		</div>,
-	// 	];
-	// 	if (!top) JSXElements.reverse();
-	// 	return <span style={style}>{JSXElements}</span>;
-	// };
 
 	render() {
 		var boardHexes = [];
