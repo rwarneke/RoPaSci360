@@ -6,7 +6,6 @@ import {
 	Form,
 	Col,
 	Card,
-	CardDeck,
 	CardColumns,
 } from "react-bootstrap";
 
@@ -89,12 +88,12 @@ class Home extends Component {
 				</div>
 				<hr />
 				<CardColumns>
-					<Card bg={"light"} key={0} text={"dark"}>
+					<Card bg={"light"} text={"dark"}>
 						<Card.Header>
 							<strong>There are no accounts</strong>
 						</Card.Header>
 						<Card.Body>
-							<Card.Text>
+							<Card.Text as="div">
 								Games can be played by anyone at any time. There is no security
 								at all.
 								<hr />
@@ -111,12 +110,12 @@ class Home extends Component {
 							</Card.Text>
 						</Card.Body>
 					</Card>
-					<Card bg={"light"} key={0} text={"dark"}>
+					<Card bg={"light"} text={"dark"}>
 						<Card.Header>
 							<strong>Getting set up</strong>
 						</Card.Header>
 						<Card.Body>
-							<Card.Text>
+							<Card.Text as="div">
 								Go to a lobby of your choice, or click the "Random Lobby"
 								button.
 								<hr />
@@ -127,12 +126,12 @@ class Home extends Component {
 							</Card.Text>
 						</Card.Body>
 					</Card>
-					<Card bg={"light"} key={0} text={"dark"}>
+					<Card bg={"light"} text={"dark"}>
 						<Card.Header>
 							<strong>How to play</strong>
 						</Card.Header>
 						<Card.Body>
-							<Card.Text>
+							<Card.Text as="div">
 								Despite the player names "Upper" and "Lower", the board will
 								always orient with your throw tokens and first throw row at the
 								bottom of the screen.
