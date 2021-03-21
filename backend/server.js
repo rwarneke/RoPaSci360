@@ -44,7 +44,7 @@ io.on("connection", (socket) => {
 			games[lobbyID] = game;
 			console.log(`Created ${Object.keys(games).length}th game (${lobbyID})`);
 		}
-		io.in(lobbyID).emit("game", game.publicVersion());
+		socket.emit("game", game.publicVersion());
 	});
 
 	socket.on("reset game", (data) => {
@@ -72,6 +72,7 @@ io.on("connection", (socket) => {
 
 		game.submitMove(move);
 		if (game.justExecutedMoves) {
+			console.log("Just executed a move, emitting game");
 			io.in(lobbyID).emit("game", game.publicVersion());
 		}
 	});

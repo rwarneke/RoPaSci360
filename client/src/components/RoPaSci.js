@@ -153,6 +153,7 @@ class Game extends Component {
 
 		// toggle the player if we haven't since the last board and pass and play is activated
 		if (this.state.passnplay && !this.state.toggled) {
+			// wait a brief moment beforehand so that the player feels that they've genuinely made a move
 			sleep(200).then(() => {
 				this.togglePlayer();
 			});
