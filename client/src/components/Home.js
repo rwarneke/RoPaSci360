@@ -7,6 +7,7 @@ import {
 	Col,
 	Card,
 	CardColumns,
+	Table,
 } from "react-bootstrap";
 
 // const lobbyIDRegex = new RegExp("^[0-9]{6}$");
@@ -99,7 +100,9 @@ class Home extends Component {
 								<hr />
 								Every link of the form{" "}
 								<i>ropasci360.herokuapp.com/lobby/[6 digit number]</i> contains
-								a separate game, e.g.{" "}
+								a separate game.
+								<br />
+								Example:{" "}
 								<a
 									href="/lobby/696969"
 									target="_blank"
@@ -132,9 +135,8 @@ class Home extends Component {
 						</Card.Header>
 						<Card.Body>
 							<Card.Text as="div">
-								Despite the player names "Upper" and "Lower", the board will
-								always orient with your throw tokens and first throw row at the
-								bottom of the screen.
+								The names "Upper" and "Lower" have been changed to "Blue" and
+								"Red" respectively.
 								<hr />
 								No drag-and-drop; you need to click the start and end hex of
 								each move.
@@ -145,7 +147,46 @@ class Home extends Component {
 								The score shows the number of tokens each player has captured
 								(the large number) and the number of throws they have remaining
 								(the small number).
+								<hr />
 							</Card.Text>
+						</Card.Body>
+					</Card>
+					<Card bg={"light"} text={"dark"}>
+						<Card.Header>
+							<strong>Hex background colours</strong>
+						</Card.Header>
+						<Card.Body>
+							<Table borderless striped id="colourLegend">
+								<tbody>
+									<tr>
+										<td style={{ background: "#add49b" }}>Green</td>
+										<td>Start of selected move</td>
+									</tr>
+									<tr>
+										<td style={{ background: "#ebe9a7" }}>Yellow</td>
+										<td>End of selected move</td>
+									</tr>
+									<tr>
+										<td style={{ background: "#b8c2e0" }}>Blue</td>
+										<td>Part of Blue's last move</td>
+									</tr>
+									<tr>
+										<td style={{ background: "#e0b8c0" }}>Red</td>
+										<td>Part of Red's last move</td>
+									</tr>
+									<tr>
+										<td
+											style={{
+												background:
+													"linear-gradient(90deg, #b8c2e0 50%, #e0b8c0 50%",
+											}}
+										>
+											Blue &amp; Red
+										</td>
+										<td>Have a guess</td>
+									</tr>
+								</tbody>
+							</Table>
 						</Card.Body>
 					</Card>
 				</CardColumns>

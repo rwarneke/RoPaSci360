@@ -28,8 +28,8 @@ const UPPER = "Blue";
 const LOWER = "Red";
 const DRAW = "Draw";
 
-const COLOUR_PALE_LOWER = "#e0b8c0";
 const COLOUR_PALE_UPPER = "#b8c2e0";
+const COLOUR_PALE_LOWER = "#e0b8c0";
 
 const COLOUR_LOWER = "#ae213b";
 const COLOUR_UPPER = "#2144ae";
@@ -206,7 +206,6 @@ class Game extends Component {
 			lobbyID,
 		});
 		this.setState({
-			game: null,
 			modalDismissed: false,
 		});
 	};
@@ -383,14 +382,14 @@ class Game extends Component {
 			we consider highlighting it as a last-move hex
 			*/
 			const lowerHex = Boolean(
-				game.lastMoves.Lower &&
-					(equal(hex, game.lastMoves.Lower.toHex) ||
-						equal(hex, game.lastMoves.Lower.fromHex))
+				game.lastMoves[LOWER] &&
+					(equal(hex, game.lastMoves[LOWER].toHex) ||
+						equal(hex, game.lastMoves[LOWER].fromHex))
 			);
 			const upperHex = Boolean(
-				game.lastMoves.Upper &&
-					(equal(hex, game.lastMoves.Upper.toHex) ||
-						equal(hex, game.lastMoves.Upper.fromHex))
+				game.lastMoves[UPPER] &&
+					(equal(hex, game.lastMoves[UPPER].toHex) ||
+						equal(hex, game.lastMoves[UPPER].fromHex))
 			);
 			if (lowerHex && upperHex) {
 				// both players moved here
@@ -552,12 +551,12 @@ class Game extends Component {
 					<Button
 						variant="warning"
 						onClick={() => {
-							this.newGame();
 							this.dismissModal();
+							this.newGame();
 						}}
 						className="standardButton"
 					>
-						Reset game
+						Restart game
 					</Button>
 					<Button
 						variant="secondary"
@@ -857,7 +856,7 @@ class Game extends Component {
 						onClick={this.newGame}
 						className="standardButton"
 					>
-						Reset game
+						Restart game
 					</Button>
 				</div>
 				<div id="message-banner" className="centerVertically">

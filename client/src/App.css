@@ -45,6 +45,12 @@
 
 @media (min-width: 768px) {
 	.card-columns {
+		column-count: 2;
+	}
+}
+
+@media (min-width: 1200px) {
+	.card-columns {
 		column-count: 3;
 	}
 }
@@ -420,4 +426,14 @@
 
 .modal-backdrop {
 	opacity: 0 !important;
+}
+
+#colourLegend td {
+	text-align: center;
+	vertical-align: middle;
+}
+
+#colourLegend {
+	border-collapse: separate;
+	border-spacing: 0.25rem;
 }
