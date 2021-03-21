@@ -97,6 +97,7 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("move", (data) => {
+		console.log("GOT MOVE");
 		const { lobbyID, nMovesObserved, move } = data;
 		if (!validLobbyID(lobbyID)) return;
 		var game = games[lobbyID];
@@ -107,6 +108,7 @@ io.on("connection", (socket) => {
 		game.submitMove(move);
 		if (game.justExecutedMoves) {
 			io.in(lobbyID).emit("game", game.publicVersion());
+			console.log("EMITTED GAME");
 		}
 	});
 

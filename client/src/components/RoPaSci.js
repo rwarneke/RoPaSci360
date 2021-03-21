@@ -556,7 +556,7 @@ class Game extends Component {
 						}}
 						className="standardButton"
 					>
-						Restart game
+						New game
 					</Button>
 					<Button
 						variant="secondary"
