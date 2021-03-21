@@ -205,9 +205,9 @@
 	display: block;
 	width: 100%;
 	height: 100%;
+	overflow: hidden;
 	text-align: center;
 	color: #fff;
-	overflow: hidden;
 	-webkit-transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
 	-ms-transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
 	transform: skewY(-30deg) rotate3d(0, 0, 1, 60deg);
@@ -390,14 +390,30 @@
 	right: -2%;
 }
 
-#gameOverModal {
-	max-width: 25rem;
-}
-
 #playingAsClashNotification {
 	font-style: italic;
 	font-weight: bold;
 	color: #ffc107;
 	font-size: 0.8rem;
 	min-height: 2.4rem;
+}
+
+#gameOverModal {
+	max-width: 25rem;
+	border-radius: 1rem;
+	border: 0;
+}
+
+.modal-content {
+	border: 0;
+	box-shadow: 0 0.3rem 0.63rem 0.07rem rgba(0, 0, 0, 0.5);
+}
+
+.modal-header button {
+	position: absolute;
+	right: 1rem;
+}
+
+.modal-backdrop {
+	opacity: 0 !important;
 }

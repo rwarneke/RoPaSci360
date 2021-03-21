@@ -96,7 +96,7 @@ class Game extends Component {
 			passnplay: false,
 			toggled: false,
 
-			showGameOverModal: false,
+			showGameOverModal: true,
 			gameOverModalDismissed: false,
 			haveSeenGameWhenNotOver: false,
 
@@ -386,7 +386,6 @@ class Game extends Component {
 			if (Game.validThrowHex(hex, player)) {
 				const playerHasThrowsLeft = game.nThrowsRemaining[player] > 0;
 				if (!playerHasThrowsLeft) {
-					console.log("disabling hex");
 					style.backgroundColor = COLOUR_HEX_DISABLED;
 				}
 			}
@@ -551,6 +550,7 @@ class Game extends Component {
 				}
 				let n = ourTokens.count + theirTokens.count;
 				var tokenImages = [];
+				const shift = Math.min(0.8, 3.2 / n);
 				if (n > 0) {
 					// do their tokens first so that ours appear on top
 					for (let i = 0; i < theirTokens.count; i++) {
@@ -560,7 +560,7 @@ class Game extends Component {
 								src={TOKEN_IMG_PATH[theirTokens.tokenType]}
 								alt={`token ${theirTokens.tokenType}`}
 								width="60%"
-								style={{ marginTop: `${(i - (n - 1) / 2) * 0.8}rem` }}
+								style={{ marginTop: `${(i - (n - 1) / 2) * shift}rem` }}
 							/>
 						);
 					}
@@ -571,7 +571,7 @@ class Game extends Component {
 								src={TOKEN_IMG_PATH[ourTokens.tokenType]}
 								alt={`token ${ourTokens.tokenType}`}
 								width="60%"
-								style={{ marginTop: `${(i - (n - 1) / 2) * 0.8}rem` }}
+								style={{ marginTop: `${(i - (n - 1) / 2) * shift}rem` }}
 							/>
 						);
 					}
@@ -672,12 +672,35 @@ class Game extends Component {
 				backdrop="static"
 				keyboard={true}
 				id="gameOverModal"
+				aria-labelledby="contained-modal-title-vcenter"
+				size="lg"
+				centered
 			>
-				<Modal.Header closeButton>
-					<Modal.Title>Game over!</Modal.Title>
+				<Modal.Header>
+					<span style={{ width: "100%" }} class="text-center">
+						<div>
+							<h3>
+								<strong>Game Over</strong>
+							</h3>
+						</div>
+						<div>{gameOverMessage}</div>
+					</span>
 				</Modal.Header>
-				<Modal.Body closeButton>
-					<strong>{gameOverMessage}</strong>
+				<Modal.Body>
+					<Button
+						variant="warning"
+						onClick={this.newGame}
+						className="standardButton"
+					>
+						Reset game
+					</Button>
+					<Button
+						variant="secondary"
+						style={{ float: "right" }}
+						className="standardButton"
+					>
+						Dismiss
+					</Button>
 				</Modal.Body>
 			</Modal>
 		);
