@@ -8,8 +8,10 @@ import {
 	Col,
 	Modal,
 } from "react-bootstrap";
+import ReactToolTip from "react-tooltip";
 
 import socketIOClient from "socket.io-client";
+
 const ENDPOINT = "/";
 // const ENDPOINT = "http://localhost:5000";
 
@@ -204,6 +206,7 @@ class Game extends Component {
 			lobbyID,
 		});
 		this.setState({
+			game: null,
 			modalDismissed: false,
 		});
 	};
@@ -736,10 +739,20 @@ class Game extends Component {
 				: "";
 			const invincible = this.invincible(player) ? "Invincible" : "";
 			const JSXElements = [
-				<div style={style} key="pscore" className="playerScore">
+				<div
+					style={style}
+					key="pscore"
+					className="playerScore"
+					data-tip="Captures"
+				>
 					{score}
 				</div>,
-				<div style={style} key="premthrows" className="playerRemThrows">
+				<div
+					style={style}
+					key="premthrows"
+					className="playerRemThrows"
+					data-tip="Remaining throws"
+				>
 					{remThrows}
 				</div>,
 				<div style={style} key="pinvinc" className="playerInvincible">
@@ -756,9 +769,16 @@ class Game extends Component {
 					{boardHexes}
 					<div
 						id="leftThrowBar"
+						data-tip="Rows your opponent can throw on"
+						data-place="top"
 						style={throwBarStyles[Game.otherPlayer(playingAs)]}
 					></div>
-					<div id="rightThrowBar" style={throwBarStyles[playingAs]}></div>
+					<div
+						id="rightThrowBar"
+						data-tip="Rows you can throw on"
+						data-place="bottom"
+						style={throwBarStyles[playingAs]}
+					></div>
 				</ul>
 				<ul id="throwHexGrid">{ourThrowHexGrid}</ul>
 			</div>
@@ -778,32 +798,32 @@ class Game extends Component {
 					<span>Playing as </span>
 					<ButtonGroup toggle>
 						<ToggleButton
-							key="red"
+							key="blue"
 							value={UPPER}
 							type="radio"
 							variant="outline-dark"
 							checked={playingAs === UPPER}
 							onChange={this.onChangePlayingAs}
 							style={{
-								width: "5rem",
+								width: "4rem",
 							}}
 							className="standardButton"
 						>
-							Red
+							Blue
 						</ToggleButton>
 						<ToggleButton
-							key="blue"
+							key="red"
 							value={LOWER}
 							type="radio"
 							variant="outline-dark"
 							checked={playingAs === LOWER}
 							onChange={this.onChangePlayingAs}
 							style={{
-								width: "5rem",
+								width: "4rem",
 							}}
 							className="standardButton"
 						>
-							Blue
+							Red
 						</ToggleButton>
 					</ButtonGroup>
 				</div>
@@ -850,6 +870,7 @@ class Game extends Component {
 			// things look very different on mobile
 			return (
 				<Container id="gameContainerXS">
+					<ReactToolTip effect="solid" place="top" />
 					{this.gameOverModal()}
 					<h2 className="center">
 						RoPaSci360 Online (Lobby {this.state.lobbyID})
@@ -876,6 +897,7 @@ class Game extends Component {
 			document.body.style = "background: rgb(177, 138, 100);";
 			return (
 				<div id="contentContainer">
+					<ReactToolTip effect="solid" place="left" />
 					<div id="gameContainer">
 						{this.gameOverModal()}
 						<h2 className="center">
