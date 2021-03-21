@@ -8,8 +8,8 @@ const io = require("socket.io")(http, {
 	},
 });
 
-const UPPER = "Upper";
-const LOWER = "Lower";
+const UPPER = "Blue";
+const LOWER = "Red";
 
 const lobbyIDRegex = new RegExp("^[0-9]{6}$");
 

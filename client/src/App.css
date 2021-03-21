@@ -320,7 +320,7 @@
 
 #message-banner {
 	font-weight: bold;
-	height: 3rem;
+	height: 2rem;
 }
 
 #game-meta-wrapper {
@@ -407,6 +407,10 @@
 .modal-content {
 	border: 0;
 	box-shadow: 0 0.3rem 0.63rem 0.07rem rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+	border-bottom: none;
 }
 
 .modal-header button {

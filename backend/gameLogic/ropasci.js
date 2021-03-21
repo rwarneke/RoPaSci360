@@ -1,11 +1,11 @@
-const UPPER = "Upper";
-const LOWER = "Lower";
+const UPPER = "Blue";
+const LOWER = "Red";
 
 const DRAW = "Draw";
 
 class Game {
-	static MAX_N_MOVES = 360;
-	static MAX_N_THROWS = 9;
+	static MAX_N_MOVES = 10;
+	static MAX_N_THROWS = 2;
 
 	static NEMISIS = {
 		r: "P",
@@ -27,24 +27,24 @@ class Game {
 		If so, execute both turns. Otherwise, wait for the other player.
 		*/
 		this.nextMoves = {
-			Upper: null,
-			Lower: null,
+			[UPPER]: null,
+			[LOWER]: null,
 		};
 
 		this.lastMoves = {
-			Upper: null,
-			Lower: null,
+			[UPPER]: null,
+			[LOWER]: null,
 		};
 
 		// number of throws taken by each player to this point
 		this.nThrowsRemaining = {
-			Upper: Game.MAX_N_THROWS,
-			Lower: Game.MAX_N_THROWS,
+			[UPPER]: Game.MAX_N_THROWS,
+			[LOWER]: Game.MAX_N_THROWS,
 		};
 
 		this.nThrowsTaken = {
-			Upper: 0,
-			Lower: 0,
+			[UPPER]: 0,
+			[LOWER]: 0,
 		};
 
 		// the number of each token type on the total board
@@ -64,8 +64,8 @@ class Game {
 		// this could technically be derived from nThrowsRemaining and tokenCounts
 		// this is really the "score" of the game. First to 9 wins.
 		this.nCaptured = {
-			Upper: 0,
-			Lower: 0,
+			[UPPER]: 0,
+			[LOWER]: 0,
 		};
 
 		this.gameStateCounts = {};
@@ -139,7 +139,7 @@ class Game {
 			// console.log(`move accepted (${move.player})`);
 			const { player } = move;
 			this.nextMoves[player] = move;
-			if (this.nextMoves.Lower && this.nextMoves.Upper) {
+			if (this.nextMoves[LOWER] && this.nextMoves[UPPER]) {
 				this.executeMoves();
 				this.justExecutedMoves = true;
 			}
@@ -349,7 +349,7 @@ class Game {
 	executeMoves() {
 		// move the tokens
 		var toHexes = [];
-		for (let move of [this.nextMoves.Lower, this.nextMoves.Upper]) {
+		for (let move of [this.nextMoves[LOWER], this.nextMoves[UPPER]]) {
 			// the move is assumed to be legal
 			const { player, fromHex, toHex, movedTokenType } = move;
 			// keep track of the toHexes for later
@@ -379,10 +379,10 @@ class Game {
 				this.tokenCounts[tokenType] -= defeated[tokenType];
 				if (tokenType === tokenType.toUpperCase()) {
 					// token is upper, award captures to loewr
-					this.nCaptured.Lower += defeated[tokenType];
+					this.nCaptured[LOWER] += defeated[tokenType];
 				} else {
 					// award captures to upper
-					this.nCaptured.Upper += defeated[tokenType];
+					this.nCaptured[UPPER] += defeated[tokenType];
 				}
 			}
 		}
@@ -391,10 +391,10 @@ class Game {
 		this.nMoves++;
 
 		// save these moves as last moves
-		this.lastMoves.Lower = this.nextMoves.Lower;
-		this.lastMoves.Upper = this.nextMoves.Upper;
+		this.lastMoves[LOWER] = this.nextMoves[LOWER];
+		this.lastMoves[UPPER] = this.nextMoves[UPPER];
 		// and clear them as the next moves, since they've now been executed
-		this.nextMoves.Upper = this.nextMoves.Lower = null;
+		this.nextMoves[UPPER] = this.nextMoves[LOWER] = null;
 
 		// record the game state for repetition checking
 		const hash = this.hash();
@@ -418,8 +418,8 @@ class Game {
 		This is equivalent to just checking for nCaptured == MAX_N_THROWS
 		*/
 		if (
-			this.nCaptured.Upper === Game.MAX_N_THROWS &&
-			this.nCaptured.Lower === Game.MAX_N_THROWS
+			this.nCaptured[UPPER] === Game.MAX_N_THROWS &&
+			this.nCaptured[LOWER] === Game.MAX_N_THROWS
 		) {
 			this.gameOver = true;
 			this.gameOverReason = "double elimination";

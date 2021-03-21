@@ -22,14 +22,17 @@ const TOKEN_IMG_PATH = {
 	S: "/images/token-s-upper.png",
 };
 
-const UPPER = "Upper";
-const LOWER = "Lower";
+const UPPER = "Blue";
+const LOWER = "Red";
+const DRAW = "Draw";
 
 const COLOUR_PALE_LOWER = "#e0b8c0";
 const COLOUR_PALE_UPPER = "#b8c2e0";
 
 const COLOUR_LOWER = "#ae213b";
 const COLOUR_UPPER = "#2144ae";
+
+const COLOUR_DRAW = "#707070";
 
 const COLOUR_HEX_DEFAULT = "#d3d3d3";
 const COLOUR_HEX_DISABLED = "#707070";
@@ -96,9 +99,7 @@ class Game extends Component {
 			passnplay: false,
 			toggled: false,
 
-			showGameOverModal: true,
-			gameOverModalDismissed: false,
-			haveSeenGameWhenNotOver: false,
+			modalDismissed: false,
 
 			windowWidth: window.innerWidth,
 		};
@@ -117,20 +118,6 @@ class Game extends Component {
 				toHex: null,
 				toggled: false,
 			});
-			if (game.gameOver) {
-				if (
-					this.state.haveSeenGameWhenNotOver &&
-					!this.state.gameOverModalDismissed
-				) {
-					this.setState({
-						showGameOverModal: true,
-					});
-				}
-			} else {
-				this.setState({
-					haveSeenGameWhenNotOver: true,
-				});
-			}
 		});
 
 		socket.on("clash update", (data) => {
@@ -217,8 +204,7 @@ class Game extends Component {
 			lobbyID,
 		});
 		this.setState({
-			gameOverModalDismissed: false,
-			haveSeenGameWhenNotOver: false,
+			modalDismissed: false,
 		});
 	};
 
@@ -228,13 +214,6 @@ class Game extends Component {
 			// treat this as a cancellation of the move, no matter what
 			this.cancelMove();
 		}
-	};
-
-	handleGameOverModalClose = () => {
-		this.setState({
-			gameOverModalDismissed: true,
-			showGameOverModal: false,
-		});
 	};
 
 	weOccupy = (hex) => {
@@ -508,12 +487,86 @@ class Game extends Component {
 		});
 	};
 
+	dismissModal = () => {
+		this.setState({
+			modalDismissed: true,
+		});
+	};
+
 	tokenIsOurs = (token) => {
 		if (this.state.playingAs === UPPER) {
 			return "RPS".includes(token);
 		} else {
 			return "rps".includes(token);
 		}
+	};
+
+	gameOverModal = () => {
+		const { game, modalDismissed } = this.state;
+		if (!game) return null;
+
+		var titleMessage = "";
+		var subtitleMessage = "";
+		var bg = null;
+		if (game.gameOver) {
+			titleMessage = game.winner === DRAW ? "Draw" : `${game.winner} Wins`;
+			subtitleMessage = `by ${game.gameOverReason}`;
+			switch (game.winner) {
+				case UPPER:
+					bg = COLOUR_UPPER;
+					break;
+				case LOWER:
+					bg = COLOUR_LOWER;
+					break;
+				case DRAW:
+					bg = COLOUR_DRAW;
+					break;
+				default:
+					bg = null;
+					break;
+			}
+		}
+		return (
+			<Modal
+				show={game && game.gameOver && !modalDismissed}
+				onHide={this.dismissModal}
+				id="gameOverModal"
+				aria-labelledby="contained-modal-title-vcenter"
+				size="lg"
+				centered
+			>
+				<Modal.Header style={{ backgroundColor: bg, color: "white" }}>
+					<span style={{ width: "100%" }} className="text-center">
+						<div>
+							<h3>
+								<strong>{titleMessage}</strong>
+							</h3>
+						</div>
+						<div>{subtitleMessage}</div>
+					</span>
+				</Modal.Header>
+				<Modal.Body>
+					<Button
+						variant="warning"
+						onClick={() => {
+							this.newGame();
+							this.dismissModal();
+						}}
+						className="standardButton"
+					>
+						Reset game
+					</Button>
+					<Button
+						variant="secondary"
+						style={{ float: "right" }}
+						className="standardButton"
+						onClick={this.dismissModal}
+					>
+						Dismiss
+					</Button>
+				</Modal.Body>
+			</Modal>
+		);
 	};
 
 	render() {
@@ -648,62 +701,7 @@ class Game extends Component {
 			);
 		});
 
-		var message = "";
-		var gameOverMessage = "";
-		if (game) {
-			if (game.gameOver) {
-				const winner = game.winner;
-				if (winner === "Draw") {
-					gameOverMessage = `Draw by ${game.gameOverReason}.`;
-				} else {
-					gameOverMessage = `${winner} wins by ${game.gameOverReason}.`;
-				}
-				message = "Game over. " + gameOverMessage;
-			} else {
-				const nMoves = game.nMoves;
-				message = `Moves: ${nMoves}`;
-			}
-		}
-
-		const gameOverModal = (
-			<Modal
-				show={this.state.showGameOverModal}
-				onHide={this.handleGameOverModalClose}
-				backdrop="static"
-				keyboard={true}
-				id="gameOverModal"
-				aria-labelledby="contained-modal-title-vcenter"
-				size="lg"
-				centered
-			>
-				<Modal.Header>
-					<span style={{ width: "100%" }} class="text-center">
-						<div>
-							<h3>
-								<strong>Game Over</strong>
-							</h3>
-						</div>
-						<div>{gameOverMessage}</div>
-					</span>
-				</Modal.Header>
-				<Modal.Body>
-					<Button
-						variant="warning"
-						onClick={this.newGame}
-						className="standardButton"
-					>
-						Reset game
-					</Button>
-					<Button
-						variant="secondary"
-						style={{ float: "right" }}
-						className="standardButton"
-					>
-						Dismiss
-					</Button>
-				</Modal.Body>
-			</Modal>
-		);
+		const message = game ? `Moves: ${game.nMoves}` : "";
 
 		const throwBarStyles = {};
 		[UPPER, LOWER].forEach((player) => {
@@ -780,7 +778,7 @@ class Game extends Component {
 					<span>Playing as </span>
 					<ButtonGroup toggle>
 						<ToggleButton
-							key="upper"
+							key="red"
 							value={UPPER}
 							type="radio"
 							variant="outline-dark"
@@ -791,10 +789,10 @@ class Game extends Component {
 							}}
 							className="standardButton"
 						>
-							Upper
+							Red
 						</ToggleButton>
 						<ToggleButton
-							key="lower"
+							key="blue"
 							value={LOWER}
 							type="radio"
 							variant="outline-dark"
@@ -805,7 +803,7 @@ class Game extends Component {
 							}}
 							className="standardButton"
 						>
-							Lower
+							Blue
 						</ToggleButton>
 					</ButtonGroup>
 				</div>
@@ -852,7 +850,7 @@ class Game extends Component {
 			// things look very different on mobile
 			return (
 				<Container id="gameContainerXS">
-					{gameOverModal}
+					{this.gameOverModal()}
 					<h2 className="center">
 						RoPaSci360 Online (Lobby {this.state.lobbyID})
 					</h2>
@@ -879,7 +877,7 @@ class Game extends Component {
 			return (
 				<div id="contentContainer">
 					<div id="gameContainer">
-						{gameOverModal}
+						{this.gameOverModal()}
 						<h2 className="center">
 							RoPaSci360 Online (Lobby {this.state.lobbyID})
 						</h2>
