@@ -327,8 +327,12 @@
 }
 
 #gameControls {
-	padding-top: 10.5rem;
-	padding-bottom: 10.5rem;
+	padding-top: 7.5rem;
+	padding-bottom: 7.5rem;
+}
+
+#gameControlsInner {
+	padding-bottom: 1rem;
 }
 
 #gameContainer {
@@ -336,7 +340,8 @@
 	margin: 0 auto;
 	/* width: 100%; */
 	max-width: 1140px; /* in line with container in xl */
-	border: 0.1rem rgba(0, 0, 0, 0.1) solid;
+	/* border: 0.1rem rgba(0, 0, 0, 0.1) solid; */
+	border-radius: 1rem;
 }
 
 #contentContainer {
@@ -348,6 +353,7 @@
 #gameContainerXS {
 	margin-top: 1rem;
 	margin-bottom: 1rem;
+	background-color: white;
 }
 
 /************************************/
@@ -386,4 +392,12 @@
 
 #gameOverModal {
 	max-width: 25rem;
+}
+
+#playingAsClashNotification {
+	font-style: italic;
+	font-weight: bold;
+	color: #ffc107;
+	font-size: 0.8rem;
+	min-height: 2.4rem;
 }

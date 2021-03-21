@@ -77,6 +77,7 @@ class Game extends Component {
 			// console.log("socket connected");
 			socket.emit("inform lobby id", {
 				lobbyID,
+				player: this.state.playingAs,
 			});
 		});
 
@@ -86,6 +87,8 @@ class Game extends Component {
 
 			game: null,
 			playingAs: UPPER,
+
+			playingAsClash: false,
 
 			fromHex: null,
 			toHex: null,
@@ -100,6 +103,12 @@ class Game extends Component {
 			windowWidth: window.innerWidth,
 		};
 
+		/*
+		When we receive a game update, we
+		1) record the update in our version of the game
+		2) reset any moves the player is attempting to submit
+		3) consider showing the game over modal
+		*/
 		socket.on("game", (game) => {
 			console.log("Game update received");
 			this.setState({
@@ -122,6 +131,20 @@ class Game extends Component {
 					haveSeenGameWhenNotOver: true,
 				});
 			}
+		});
+
+		socket.on("clash update", (data) => {
+			const weAreClashing = data[this.state.playingAs];
+			this.setState({
+				playingAsClash: weAreClashing,
+			});
+		});
+
+		socket.on("recommend playing as", (data) => {
+			const { player } = data;
+			this.setState({
+				playingAs: player,
+			});
 		});
 	}
 
@@ -148,6 +171,7 @@ class Game extends Component {
 		console.log("Submitting", move);
 		this.state.socket.emit("move", {
 			lobbyID: this.state.lobbyID,
+			nMovesObserved: this.state.game.nMoves,
 			move,
 		});
 
@@ -167,6 +191,10 @@ class Game extends Component {
 			toHex: null,
 			toggled: true,
 		});
+		this.state.socket.emit("playing as", {
+			lobbyID: this.state.lobbyID,
+			player: this.state.playingAs,
+		});
 	};
 
 	cancelMove = () => {
@@ -178,6 +206,7 @@ class Game extends Component {
 		this.state.socket.emit("cancel move", {
 			lobbyID: this.state.lobbyID,
 			player: this.state.playingAs,
+			nMovesObserved: this.state.game.nMoves,
 		});
 	};
 
@@ -467,6 +496,11 @@ class Game extends Component {
 			playingAs: e.target.value,
 			fromHex: null,
 			toHex: null,
+			playingAsClash: false, // assume the best for now
+		});
+		this.state.socket.emit("playing as", {
+			lobbyID: this.state.lobbyID,
+			player: e.target.value,
 		});
 	};
 
@@ -478,29 +512,29 @@ class Game extends Component {
 		}
 	};
 
-	// create the JSX for the game meta describing a players score
-	playerMetaJSX = (player, top) => {
-		const style =
-			player === UPPER ? { color: "#000000" } : { color: "#ae213b" };
-		const score = this.state.game ? this.state.game.nCaptured[player] : 0;
-		const remThrows = this.state.game
-			? this.state.game.nThrowsRemaining[player]
-			: "";
-		const invincible = this.invincible(player) ? "Invincible" : "";
-		const JSXElements = [
-			<div key="pscore" className="playerScore">
-				{score}
-			</div>,
-			<div key="premthrows" className="playerRemThrows">
-				{remThrows}
-			</div>,
-			<div key="pinvinc" className="playerInvincible">
-				{invincible}
-			</div>,
-		];
-		if (!top) JSXElements.reverse();
-		return <span style={style}>{JSXElements}</span>;
-	};
+	// // create the JSX for the game meta describing a players score
+	// playerMetaJSX = (player, top) => {
+	// 	const style =
+	// 		player === UPPER ? { color: "#000000" } : { color: "#ae213b" };
+	// 	const score = this.state.game ? this.state.game.nCaptured[player] : 0;
+	// 	const remThrows = this.state.game
+	// 		? this.state.game.nThrowsRemaining[player]
+	// 		: "";
+	// 	const invincible = this.invincible(player) ? "Invincible" : "";
+	// 	const JSXElements = [
+	// 		<div key="pscore" className="playerScore">
+	// 			{score}
+	// 		</div>,
+	// 		<div key="premthrows" className="playerRemThrows">
+	// 			{remThrows}
+	// 		</div>,
+	// 		<div key="pinvinc" className="playerInvincible">
+	// 			{invincible}
+	// 		</div>,
+	// 	];
+	// 	if (!top) JSXElements.reverse();
+	// 	return <span style={style}>{JSXElements}</span>;
+	// };
 
 	render() {
 		var boardHexes = [];
@@ -729,8 +763,16 @@ class Game extends Component {
 		);
 
 		const gameControls = (
-			<div className="center">
+			<div className="center" id="gameControlsInner">
 				<div>
+					<div id="playingAsClashNotification">
+						{this.state.playingAsClash ? (
+							<>
+								Someone else in this lobby is also playing as{" "}
+								{this.state.playingAs}.
+							</>
+						) : null}
+					</div>
 					<span>Playing as </span>
 					<ButtonGroup toggle>
 						<ToggleButton
@@ -829,6 +871,7 @@ class Game extends Component {
 				</Container>
 			);
 		} else {
+			document.body.style = "background: rgb(177, 138, 100);";
 			return (
 				<div id="contentContainer">
 					<div id="gameContainer">
