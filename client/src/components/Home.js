@@ -95,8 +95,8 @@ class Home extends Component {
 						</Card.Header>
 						<Card.Body>
 							<Card.Text as="div">
-								Games can be played by anyone at any time. There is no security
-								at all.
+								Any game can be played by anyone at any time. There are no
+								private games.
 								<hr />
 								Every link of the form{" "}
 								<i>ropasci360.herokuapp.com/lobby/[6 digit number]</i> contains
@@ -122,10 +122,10 @@ class Home extends Component {
 								Go to a lobby of your choice, or click the "Random Lobby"
 								button.
 								<hr />
-								Share the link with a friend. The system will try to
-								automatically put you on opposite teams, but remember that
-								anyone can control either side of any game, so you may need to
-								work this out manually.
+								Share the link with a friend, or open the link in another tab.
+								The system will try to automatically put you on opposite teams,
+								but remember that anyone can control either side of any game, so
+								you may need to work this out manually.
 							</Card.Text>
 						</Card.Body>
 					</Card>
@@ -136,18 +136,18 @@ class Home extends Component {
 						<Card.Body>
 							<Card.Text as="div">
 								The names "Upper" and "Lower" have been changed to "Blue" and
-								"Red" respectively.
+								"Red" respectively. Your throw tokens will always be at the
+								bottom of the screen, as will your first throw row.
 								<hr />
 								No drag-and-drop; you need to click the start and end hex of
 								each move.
 								<hr />
 								The bars on the side of the board show which rows each player
-								can throw hexes onto.
+								can throw tokens onto.
 								<hr />
 								The score shows the number of tokens each player has captured
 								(the large number) and the number of throws they have remaining
 								(the small number).
-								<hr />
 							</Card.Text>
 						</Card.Body>
 					</Card>

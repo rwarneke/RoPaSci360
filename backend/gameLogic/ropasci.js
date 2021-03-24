@@ -525,6 +525,10 @@ class Game {
 }
 
 function uniqueJSONstringify(thing) {
+	/*
+	JSON.stringify does not uniquely "hash" objects.
+	This implementation does.
+	*/
 	if (typeof thing === "object") {
 		const arr = [];
 		const keys = Object.keys(thing);
