@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import RoPaSci from "./components/RoPaSci";
 import Home from "./components/Home";
 import Navbar from "./components/Navbar";
+import Feedback from "./components/Feedback";
 import NotFound from "./components/NotFound";
 
 const lobbyIDRegex = "([0-9]{6})";
@@ -17,6 +18,7 @@ function App() {
 			<Navbar />
 			<Switch>
 				<Route exact path="/" component={Home} />
+				<Route exact path="/feedback" component={Feedback} />
 				<Route exact path={pathLobbyID} component={RoPaSci} />
 				<Route component={NotFound} />
 			</Switch>
