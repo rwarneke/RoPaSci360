@@ -17,11 +17,11 @@ const ENDPOINT = "/";
 
 const TOKEN_IMG_PATH = {
 	r: `${process.env.PUBLIC_URL}/images/token-r-lower.png`,
-	p: "/images/token-p-lower.png",
-	s: "/images/token-s-lower.png",
-	R: "/images/token-r-upper.png",
-	P: "/images/token-p-upper.png",
-	S: "/images/token-s-upper.png",
+	p: `${process.env.PUBLIC_URL}/images/token-p-lower.png`,
+	s: `${process.env.PUBLIC_URL}/images/token-s-lower.png`,
+	R: `${process.env.PUBLIC_URL}/images/token-r-upper.png`,
+	P: `${process.env.PUBLIC_URL}/images/token-p-upper.png`,
+	S: `${process.env.PUBLIC_URL}/images/token-s-upper.png`,
 };
 
 const UPPER = "Blue";
@@ -893,42 +893,47 @@ class Game extends Component {
 				</Container>
 			);
 		} else {
-			document.body.style = "background: rgb(177, 138, 100);";
+			// document.body.style = `background-image: url(${BACKGROUND_IMG_PATH});`;
 			return (
-				<div id="contentContainer">
-					<ReactToolTip effect="solid" place="left" />
-					<div id="gameContainer">
-						{this.gameOverModal()}
-						<h2 className="center">
-							RoPaSci360 Online (Lobby {this.state.lobbyID})
-						</h2>
-						<hr />
-						<Row>
-							<Col sm={8} id="board-wrapper">
-								{board}
-							</Col>
-							<Col sm={4} id="game-meta-wrapper" className="centerVertically">
-								<div id="topScore" className="center">
-									{scoreComponents[Game.otherPlayer(playingAs)]}
-								</div>
-								<div
-									className="centerVertically"
-									id="gameControls"
-									style={{ width: "100%" }}
-								>
-									<div style={{ width: "100%" }}>
-										<hr />
-										{gameControls}
-										<hr />
-									</div>
-								</div>
-								<div id="bottomScore" className="center">
-									{scoreComponents[playingAs].reverse()}
-								</div>
-							</Col>
-						</Row>
+				<>
+					<div className="bgImageOuter">
+						<div className="bgImageInner"></div>
 					</div>
-				</div>
+					<div id="contentContainer">
+						<ReactToolTip effect="solid" place="left" />
+						<div id="gameContainer">
+							{this.gameOverModal()}
+							<h2 className="center">
+								RoPaSci360 Online (Lobby {this.state.lobbyID})
+							</h2>
+							<hr />
+							<Row>
+								<Col sm={8} id="board-wrapper">
+									{board}
+								</Col>
+								<Col sm={4} id="game-meta-wrapper" className="centerVertically">
+									<div id="topScore" className="center">
+										{scoreComponents[Game.otherPlayer(playingAs)]}
+									</div>
+									<div
+										className="centerVertically"
+										id="gameControls"
+										style={{ width: "100%" }}
+									>
+										<div style={{ width: "100%" }}>
+											<hr />
+											{gameControls}
+											<hr />
+										</div>
+									</div>
+									<div id="bottomScore" className="center">
+										{scoreComponents[playingAs].reverse()}
+									</div>
+								</Col>
+							</Row>
+						</div>
+					</div>
+				</>
 			);
 		}
 	}
